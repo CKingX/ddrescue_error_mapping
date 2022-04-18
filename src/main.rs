@@ -1,4 +1,3 @@
-use text_io::scan;
 use std::{env, fs, process};
 
 const CONVERT_ERROR: &str = "Could not convert hex to decimal";
@@ -8,7 +7,8 @@ const HELP: &str = "ddr_error_mapping <ddrescue log> <device path>\n
 --help -h Shows this page\n
 --version -v Shows the version";
 const FILE_ERROR: &str = "Unable to either open or parse file";
-const VERSION: &str = "ddr_error_mapping  0.5.2";
+const VERSION: &str = "ddr_error_mapping  0.6.0";
+const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -33,8 +33,8 @@ fn main() {
                     .unwrap_or_else(|_| panic!("{FILE_ERROR}"));
 
     let mut file_line = contents.lines()
-                        .filter(|s| !s.is_empty() && !s.contains("#"))
                         .map(|s| s.trim())
+                        .filter(|s| !s.is_empty() && !s.contains("#"))
                         .skip(1);
 
     let mut output: Vec<String> = if let (_, Some(capacity)) = file_line.size_hint() {
@@ -49,7 +49,13 @@ fn main() {
         let size: u64;
         let size_string: String;
         let status: char;
-        scan!(line.bytes() => "{}  {}  {}", pos_string,size_string,status);
+
+        let mut map_line = line.split_ascii_whitespace();
+        pos_string = map_line.next().expect(PARSE_ERROR).to_string();
+        size_string = map_line.next().expect(PARSE_ERROR).to_string();
+        status = map_line.next().expect(PARSE_ERROR).chars().nth(0)
+                    .unwrap();
+
         pos = u64::from_str_radix(pos_string.trim_start_matches("0x"),16)
                 .expect(CONVERT_ERROR);
         size = u64::from_str_radix(size_string.trim_start_matches("0x"),16)
