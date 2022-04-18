@@ -5,12 +5,3 @@ version = 3
 [[package]]
 name = "ddrescue_error_mapping"
 version = "0.5.2"
-dependencies = [
- "text_io",
-]
-
-[[package]]
-name = "text_io"
-version = "0.1.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "442f2674e6bd8489052b958e0eaebd89c26eefa3be9dc359d1e2ecccdc510f45"
