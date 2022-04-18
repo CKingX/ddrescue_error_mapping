@@ -9,7 +9,7 @@ sudo losetup <device location ex: /dev/loop50> <path to image file> -r -b=[512/4
 
 This will create a block device at `<device location>` with the specified sector size in `-b` parameter. The `-r` parameter ensures the image is mounted read-only.
 
-Once you have an image, you can use the ddr_error_mapping by running 
+Once you have created the blockd device from the image, you can use the ddr_error_mapping by running 
 ```
 ddr_error_mapping <ddrescue log file> <path of block device> >mapping.txt
 ```
