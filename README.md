@@ -25,3 +25,4 @@ Use cargo to build ddr_error_mapping. Currently tested with rustc version 1.60
 
 ## Limitations
 * `dmsetup` error device did not work under WSL in my testing
+* Only tested on Ubuntu 20.04
