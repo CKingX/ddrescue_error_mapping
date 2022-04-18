@@ -4,11 +4,11 @@ use std::{env, fs, process};
 const CONVERT_ERROR: &str = "Could not convert hex to decimal";
 const NO_PATH: &str = "No path to file given";
 const DEVICE_ERROR: &str = "No device path given";
-const HELP: &str = "ddr_error_mapping <ddrescue log> <device path> [sector size (512 default)]\n
+const HELP: &str = "ddr_error_mapping <ddrescue log> <device path>\n
 --help -h Shows this page\n
 --version -v Shows the version";
 const FILE_ERROR: &str = "Unable to either open or parse file";
-const VERSION: &str = "ddr_error_mapping  0.5.1";
+const VERSION: &str = "ddr_error_mapping  0.5.2";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
