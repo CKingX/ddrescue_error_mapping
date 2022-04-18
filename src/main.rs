@@ -22,6 +22,12 @@ fn main() {
         }
         process::exit(0);
     }
+
+    if args.contains(&"--help".to_string()) || args.contains(&"-h".to_string()) {
+        println!("{HELP}");
+        process::exit(0);
+    }
+
     let filename;
     let device_name;
 
