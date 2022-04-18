@@ -4,7 +4,7 @@ This is a simple tool that converts ddrescue map files to dmintegrity table allo
 ## Usage
 Once you have an image, mount the image. Make sure to get the sector size (the default for mounting images is 512 bytes)
 ```
-sudo losetup <device location ex: /dev/loop50> <path to image file> -r -b=[512/4096]
+sudo losetup <device location ex: /dev/loop50> <path to image file> -r -b [512/4096]
 ```
 
 This will create a block device at `<device location>` with the specified sector size in `-b` parameter. The `-r` parameter ensures the image is mounted read-only.
