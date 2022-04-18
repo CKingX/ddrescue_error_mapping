@@ -6,15 +6,8 @@ version = 3
 name = "ddrescue_error_mapping"
 version = "0.5.1"
 dependencies = [
- "static_vcruntime",
  "text_io",
 ]
-
-[[package]]
-name = "static_vcruntime"
-version = "1.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a88c15d6fe7210ea80c578b53855615fdea0188e1630b6d9c377e1b2f2c098fa"
 
 [[package]]
 name = "text_io"

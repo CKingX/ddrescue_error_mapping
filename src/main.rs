@@ -1,7 +1,5 @@
 use text_io::scan;
 use std::{env, fs, process};
-#[cfg(target_os = "windows")]
-extern crate static_vcruntime;
 
 const CONVERT_ERROR: &str = "Could not convert hex to decimal";
 const NO_PATH: &str = "No path to file given";
