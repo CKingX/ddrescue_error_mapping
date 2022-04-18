@@ -16,9 +16,9 @@ fn main() {
         if let Some(arg) = args.iter().nth(1) {
             if arg.contains("--version") || arg.contains("-v") {
                 println!("{VERSION}");
+            } else {
+                println!("{HELP}");
             }
-        }  else {
-            println!("{HELP}");
         }
         process::exit(0);
     }
