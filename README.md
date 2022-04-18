@@ -21,8 +21,17 @@ This will create a new device at `/dev/mapper/<device name>` which you can use w
 ddr_error_mapping install binaries are available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Windows and Linux binaries (x64 architecture only). I currently do not have a Mac to test ddr_error_mapping with, but building and running it should work regardless. (Note that ddr_error_mapping will only create the device mapping file. You still need Linux to create the device mapper block device!)
 
 ## Build Guide
-Use cargo to build ddr_error_mapping. Currently tested with rustc version 1.60
+We can use cargo to build ddr_error_mapping. Currently tested with rustc version 1.60. To build, we first need to install rustup. For Windows, you can download rustup-init [here for Intel x64](https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe) and [here for Intel 32-bit](https://static.rust-lang.org/rustup/dist/i686-pc-windows-msvc/rustup-init.exe). For Linux and macOS, run this command below instead to install rustup:
+```
+curl https://sh.rustup.rs -sSf | sh
+```
+Then, we can build:
+```
+git clone https://github.com/CKingX/ddrescue_error_mapping.git
+cargo install --path ./ddrescue_error_mapping
+```
+Now you can run by typing ddrescue_error_mapping in terminal!
 
 ## Limitations
 * `dmsetup` error device did not work under WSL in my testing
-* Only tested on Ubuntu 20.04
+* Only tested on Ubuntu 20.04 
