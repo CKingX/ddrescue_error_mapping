@@ -12,13 +12,17 @@ const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.iter().count() < 3 {
+    let arg_count = args.iter().count();
+    if arg_count < 3 {
         if let Some(arg) = args.iter().nth(1) {
             if arg.contains("--version") || arg.contains("-v") {
                 println!("{VERSION}");
             } else {
                 println!("{HELP}");
             }
+        }
+        if arg_count == 1 {
+            println!("{HELP}");
         }
         process::exit(0);
     }
