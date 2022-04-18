@@ -9,7 +9,7 @@ sudo losetup <device location ex: /dev/loop50> <path to image file> -r -b=[512/4
 
 This will create a block device at `<device location>` with the specified sector size in `-b` parameter. The `-r` parameter ensures the image is mounted read-only.
 
-Once you have created the blockd device from the image, you can use the ddr_error_mapping by running 
+Once you have created the block device from the image, you can use the ddr_error_mapping by running 
 ```
 ddr_error_mapping <ddrescue log file> <path of block device> >mapping.txt
 ```
@@ -18,7 +18,7 @@ Note the block device is the block device created with losetup. This command wil
 This will create a new device at `/dev/mapper/<device name>` which you can use with tools. Tested with DMDE (for faster recovery, set retries to 0), UFS Explorer and R-Studio
 
 ## Install
-ddr_error_mapping install binaries are available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Windows and Linux binaries (x64 architecture only). I currently do not have a Mac to test ddr_error_mapping with, but this should work regardless (Note that ddr_error_mapping will only create the device mapping file. You still need Linux to create the device mapper block device)
+ddr_error_mapping install binaries are available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Windows and Linux binaries (x64 architecture only). I currently do not have a Mac to test ddr_error_mapping with, but building and running it should work regardless. (Note that ddr_error_mapping will only create the device mapping file. You still need Linux to create the device mapper block device!)
 
 ## Build Guide
 Use cargo to build ddr_error_mapping. Currently tested with rustc version 1.60
