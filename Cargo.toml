@@ -1,10 +1,11 @@
 [package]
 name = "ddrescue_error_mapping"
 license = "AGPL-3.0-or-later"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 text_io = "0.1.10"
+static_vcruntime = "1"
