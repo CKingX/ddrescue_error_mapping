@@ -1,4 +1,4 @@
-use std::{ffi::{OsString, OsStr}, fs, fmt::Write, process::{self, Command}};
+use std::{ffi::{OsString}, fs, fmt::Write, process::{self, Command}};
 
 use crate::error;
 use crate::config;
@@ -7,9 +7,9 @@ use std::path::Path;
 pub fn mount(image: OsString, map: OsString, block_size: u32) {
     let entry = config::get_next_devices();
     let device_name = format!("{}{}",config::DM_MOUNT_PATH,entry);
-    let image_path = OsString::from(format!("{}{}",config::IMAGE_MOUNT_PATH, 
-                    entry));
-    let device_name_os= OsString::from(&device_name);
+    let image_mount_path = format!("{}{}",config::IMAGE_MOUNT_PATH, 
+        entry);
+    let image_path = OsString::from(&image_mount_path);
     let device_mapper = &format!("{}",parse_map(map, &image_path.to_str().unwrap()));
     
     let image_mount_status = Command::new("losetup")
@@ -35,8 +35,9 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
         eprintln!("Unable to read image file");
         std::process::exit(error::ExitCode::FileError as i32);
     }
-
+    
     let mut config = config::Config::read_config();
+    config.write_device(image_path, entry, image_mount_path, device_name);
     config.write_config();
 }
 

@@ -8,7 +8,7 @@ pub const IMAGE_MOUNT_PATH: &str = "/dev/loop50";
 
 
 pub struct Device {
-    pub image_mount_point: String,
+    pub image_file_path: String,
     pub device_mount_point: String,
 }
 
@@ -24,8 +24,9 @@ impl Iterator for DeviceIterator<'_> {
         match item {
             Some(entry) => {
                 Some(Device {
-                    image_mount_point: entry.1.image_mount_point.clone(),
-                    device_mount_point: format!("{DM_MOUNT_PATH}{}", entry.0)
+                    image_file_path: String::from(entry.1.image_file.to_str()
+                            .unwrap()).clone(),
+                    device_mount_point: format!("/dev/mapper/{}", entry.1.dm_mount_point.to_string())
                 })
             },
             None => None,
@@ -34,10 +35,11 @@ impl Iterator for DeviceIterator<'_> {
 }
 
 #[derive(Serialize, Deserialize)]
-struct ConfigEntry {
+pub struct ConfigEntry {
     image_file: OsString,
     /// image file mount point
     image_mount_point: String,
+    dm_mount_point: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -67,9 +69,11 @@ impl Config {
         }
     }
 
-    pub fn write_device(&mut self, image_path: OsString, entry: u32, image_mount: String) {
-        self.0.insert(entry,ConfigEntry { image_file: image_path, 
-            image_mount_point: image_mount });
+    pub fn write_device(&mut self, image_path: OsString, entry: u32, image_mount: String, dm_mount_point: String) {
+        self.0.insert(entry,ConfigEntry {
+            image_file: image_path, 
+            image_mount_point: image_mount,
+            dm_mount_point,});
     }
 
     pub fn write_config(&mut self) {
@@ -80,10 +84,16 @@ impl Config {
     }
 }
 
+impl Drop for Config {
+    fn drop(&mut self) {
+        self.write_config();
+    }
+}
+
 pub fn list_devices() {
     let config = Config::read_config();
-    for devices in config.0 {
-        let image = devices.1.image_file.into_string();
+    for devices in &config.0 {
+        let image = devices.1.image_file.clone().into_string();
         if image.is_ok() {
             println!("{} mounted at {}", image.unwrap(), DM_MOUNT_PATH.to_string() + &devices.0.to_string());
         } else {
@@ -93,7 +103,7 @@ pub fn list_devices() {
 }
 
 pub fn get_next_devices() -> u32 {
-    let config = Config::read_config().0;
+    let config = &Config::read_config().0;
     let mut next_device = 0;
     for num in 0..=u32::MAX {
         if let Some(_) = config.get(&num) {

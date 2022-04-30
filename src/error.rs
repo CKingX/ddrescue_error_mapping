@@ -79,7 +79,6 @@ pub fn check_io_error(error: std::io::Error, filename: String, filetype: FileTyp
 }
 
 pub fn mount_error() -> ! {
-    panic!();
     eprintln!("{MOUNT_ERROR}");
     std::process::exit(ExitCode::MountError as i32);
 }
