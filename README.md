@@ -1,4 +1,6 @@
 # ddrescue_error_mapping
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping?ref=badge_shield)
+
 This is a simple tool that converts ddrescue map files to dmintegrity table allowing you to use the bad sector maps on any data recovery tools that run under Linux (Current testing shows that this does *not* work under WSL). To create error mapping, you need both an image and the ddrescue map file. While ddrescue is the obvious tool that can create both, other tools can also create ddrescue compatible map files (like HDDSuperClone)
 
 ## Usage
@@ -35,3 +37,7 @@ Now you can run by typing ddrescue_error_mapping in terminal!
 ## Limitations
 * `dmsetup` error device did not work under WSL in my testing
 * Tested on Windows 10, Windows 11 (Note that I only tested my application ddr_error_mapping. Device mapper itself did not work under WSL in my testing), Ubuntu 20.04, and Ubuntu 18.04
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping?ref=badge_large)
