@@ -1,6 +1,6 @@
 [package]
 name = "ddrescue_error_mapping"
-license = "AGPL-3.0-or-later"
+license = "AGPL-3.0-only"
 version = "0.6.1"
 edition = "2021"
 
