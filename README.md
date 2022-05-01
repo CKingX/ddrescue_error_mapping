@@ -22,10 +22,10 @@ ddr-mount list
 ```
 
 ## Install
-ddr_error_mapping install binaries are available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only).
+dr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only).
 
 ## Build Guide
-We can use cargo to build ddr_error_mapping. Currently tested with rustc version 1.60. To build, we first need to install rustup. Make sure to install build tools like build-essentials on Ubuntu. Finally, run this command below instead to install rustup:
+We can use cargo to build dr-mount. Currently tested with rustc version 1.60. To build, we first need to install rustup. Make sure to install build tools like build-essentials on Ubuntu. Finally, run this command below instead to install rustup:
 ```
 curl https://sh.rustup.rs -sSf | sh
 ```
@@ -34,7 +34,7 @@ Then, we can build:
 git clone https://github.com/CKingX/ddrescue_error_mapping.git
 cargo install --path ./ddrescue_error_mapping
 ```
-Now you can run by typing ddrescue_error_mapping in terminal!
+Now you can run by typing dm-mount in terminal!
 
 ## Limitations
 * dm-mount does not yet work under WSL
