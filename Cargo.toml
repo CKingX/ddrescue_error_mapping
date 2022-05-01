@@ -4,7 +4,7 @@ license = "AGPL-3.0-only"
 version = "1.0.0-beta"
 edition = "2021"
 authors = ["CKingX"]
-description = "ddr_mount allows you to mount image files while passing bad sectors"
+description = "ddr-mount allows you to mount image files while passing bad sectors"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

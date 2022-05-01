@@ -31,9 +31,9 @@ enum Commands {
         /// Sector size of disk that was imaged
         #[clap(short,long,default_value_t = 512)]
         block_size: u32},
-    /// Unmounts any image mounted by ddr_mount
+    /// Unmounts any image mounted by ddr-mount
     Unmount {
-        /// Device previously mounted with ddrescue_error_mapping mount
+        /// Device previously mounted with ddr-mount mount (ex: ddrm0)
         device: String
     },
     /// List mounted images and their mount points

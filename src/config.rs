@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::os::unix::prelude::*;
 
 pub const DEVICE_NAME: &str = "ddrm";
-pub const CONFIG_FOLDER: &str = "ddr_mount";
+pub const CONFIG_FOLDER: &str = "ddr-mount";
 pub const DM_LOCATION: &str = "/dev/mapper/";
 
 
