@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::{ffi::OsString, fs::File, io::{ErrorKind, Read}};
 use crate::error::{self, set_config_error};
 use std::collections::HashMap;
+use std::os::unix::prelude::*;
 
 pub const DEVICE_NAME: &str = "ddrm";
 pub const CONFIG_FOLDER: &str = "ddr_mount";
@@ -54,7 +55,7 @@ impl Config {
         temp.push("config.json");
 
         let file = File::options().read(true)
-        .open(&temp);
+        .mode(664).open(&temp);
 
         if let Err(error) = file {
             if let ErrorKind::NotFound = error.kind() {
@@ -127,6 +128,8 @@ pub fn list_devices() {
     
         println!("{image} => {DM_LOCATION}{}",device.device_mount_point);
     }
+
+    std::mem::forget(config);
 }
 
 pub fn get_next_devices() -> u32 {
