@@ -14,20 +14,7 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
     let image_path = OsString::from(&image_mount_path);
 
     // mount the device mapper over image mount, creating error I/O range using map file
-    let entry = config::get_next_devices();
-
-    let device_name = format!("{}{}",config::DEVICE_NAME,entry);
-    let device_mapper = &format!("{}",parse_map(map, &image_path.to_str().unwrap()));
-
-    let dm_mount_status = Command::new("dmsetup")
-                            .args(["create",&device_name,"--table",&device_mapper])
-                            .stdin(process::Stdio::null())
-                            .output().unwrap_or_else(|_| error::mount_error());
-
-    if !dm_mount_status.status.success() {
-        eprintln!("Unable to read image file");
-        std::process::exit(error::ExitCode::FileError as i32);
-    }
+    let (entry,device_name) = dm_mount(&map, &image_path);
     
     let mut config = config::Config::read_config();
     config.write_device(image.clone(), entry, image_mount_path, device_name.clone());
@@ -39,11 +26,11 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
     }
 }
 
-fn parse_map(map_path: OsString, device_name: &str) -> String {
+fn parse_map(map_path: &OsString, device_name: &str) -> String {
     let mut output = String::new();
     let contents= fs::read_to_string(map_path.clone())
                     .unwrap_or_else(|error| error::check_io_error(error, 
-                        map_path.into_string().unwrap_or_default(),
+                        map_path.clone().into_string().unwrap_or_default(),
                         crate::error::FileType::MapFile));
 
     let mut file_line = contents.lines()
@@ -109,7 +96,8 @@ fn absolute_image_path(path: OsString) -> OsString {
 }
 
 /// Mounts the image using losetup. First, it finds an empty loop device using losetup -f
-/// Then it mounts by doing losetup {loopdev} {path to image file} -b {sector size}
+/// Then it mounts by doing: 
+/// ```losetup {loopdev} {path to image file} -b {sector size} -r```
 /// Finally returns the loopdev path
 fn losetup_mount(image: &OsString, block_size: u32) -> String {
     let losetup_next_loop_device = Command::new("losetup").args(["-f"])
@@ -134,6 +122,22 @@ fn losetup_mount(image: &OsString, block_size: u32) -> String {
     image_mount_path
 }
 
-fn dm_mount() -> String {
-    todo!();
+/// Mounts the image using the parse map with the following commmand
+/// ```dmsetup create {device name} --table {parse map}```
+fn dm_mount(map: &OsString, image_path: &OsString) -> (u32,String) {
+    let entry = config::get_next_devices();
+
+    let device_name = format!("{}{}",config::DEVICE_NAME,entry);
+    let device_mapper = &format!("{}",parse_map(map, &image_path.to_str().unwrap()));
+
+    let dm_mount_status = Command::new("dmsetup")
+                            .args(["create",&device_name,"--table",&device_mapper])
+                            .stdin(process::Stdio::null())
+                            .output().unwrap_or_else(|_| error::mount_error());
+
+    if !dm_mount_status.status.success() {
+        eprintln!("Unable to read image file");
+        std::process::exit(error::ExitCode::FileError as i32);
+    }
+    (entry, device_name)
 }
