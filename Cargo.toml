@@ -1,5 +1,5 @@
 [package]
-name = "ddr_mount"
+name = "ddr-mount"
 license = "AGPL-3.0-only"
 version = "1.0.0-beta"
 edition = "2021"

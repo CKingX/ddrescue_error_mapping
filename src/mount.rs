@@ -38,7 +38,6 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
     
     let mut config = config::Config::read_config();
     config.write_device(image_path, entry, image_mount_path, device_name);
-    config.write_config();
 }
 
 fn parse_map(map_path: OsString, device_name: &str) -> String {

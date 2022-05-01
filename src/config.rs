@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{ffi::OsString, fs::OpenOptions, io::{ErrorKind, Read}};
+use std::{ffi::OsString, fs::File, io::{ErrorKind, Read}};
 use crate::error::{self, set_config_error};
 use std::collections::HashMap;
 
@@ -49,12 +49,13 @@ impl Config {
     pub fn read_config() -> Config {
         let mut temp = std::env::temp_dir();
         temp.push(CONFIG_FOLDER);
-        std::fs::create_dir_all(temp.into_os_string())
+        std::fs::create_dir_all(&temp)
                             .unwrap_or_else(|_| error::set_config_error());
-        
-        let file = OpenOptions::new().read(true).write(true)
-        .open("config.json");
-        
+        temp.push("config.json");
+
+        let file = File::options().read(true)
+        .open(&temp);
+
         if let Err(error) = file {
             if let ErrorKind::NotFound = error.kind() {
                 Config(HashMap::new())
@@ -65,11 +66,12 @@ impl Config {
             let mut config_entries = String::new();
             let file_size = file.unwrap().read_to_string(&mut config_entries)
                 .unwrap_or_else(|_| set_config_error());
+
             if file_size == 0 {
                 config_entries = "{}".to_string();
             }
-            let config: Config = serde_json::from_str(&config_entries).unwrap();
-            dbg!(config.clone());
+            let config: Config = serde_json::from_str(&config_entries).unwrap_or_else(|_| set_config_error());
+
             config 
         }
     }
@@ -89,7 +91,8 @@ impl Config {
         let mut temp = std::env::temp_dir();
         temp.push(CONFIG_FOLDER);
         temp.push("config.json");
-        std::fs::write(temp, serde_json::to_string(self).unwrap().as_bytes()).unwrap();
+        std::fs::write(temp, serde_json::to_string(self).unwrap().as_bytes())
+                .unwrap_or_else(|_| set_config_error());
     }
 }
 

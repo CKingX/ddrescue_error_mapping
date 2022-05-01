@@ -65,7 +65,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ddr_mount"
+name = "ddr-mount"
 version = "1.0.0-beta"
 dependencies = [
  "atty",
