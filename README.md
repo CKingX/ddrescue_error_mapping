@@ -1,29 +1,31 @@
-# ddrescue_error_mapping
+# ddr-mount
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping?ref=badge_shield)
 
-This is a simple tool that converts ddrescue map files to dmintegrity table allowing you to use the bad sector maps on any data recovery tools that run under Linux (Current testing shows that this does *not* work under WSL). To create error mapping, you need both an image and the ddrescue map file. While ddrescue is the obvious tool that can create both, other tools can also create ddrescue compatible map files (like HDDSuperClone)
+This is a simple tool that mounts ddrescue images with their map files, allowing it to present I/O errors for any bad sectors or untried areas to any Linux recovery tool. (Current testing shows that this does *not* work under WSL). To mount an image, you need both an image and the ddrescue map file. While ddrescue is the obvious tool that can create both, other tools can also create ddrescue compatible map files (like HDDSuperClone)
 
 ## Usage
-Once you have an image, mount the image. Make sure to get the sector size (the default for mounting images is 512 bytes)
+Once you have an image, mount the image. Make sure to get the sector size (the default for mounting images is 512 bytes, but modern hard drivs use 4096 bytes sector size)
 ```
-sudo losetup <device location ex: /dev/loop50> <path to image file> -r -b [512/4096]
+sudo ddr-mount mount -i <path to image file> -m <path to map file> -b <sector size>
 ```
 
-This will create a block device at `<device location>` with the specified sector size in `-b` parameter. The `-r` parameter ensures the image is mounted read-only.
+This will create a block device at /dev/mapper/ddrm# (The exact number will be printed) with the specified sector size in `-b` parameter. The image itself is mounted read-only, so there is no risk to changing the image file.
 
-Once you have created the block device from the image, you can use the ddr_error_mapping by running 
+Once done, you can unmount the image:
 ```
-ddr_error_mapping <ddrescue log file> <path of block device> >mapping.txt
+sudo ddr-mount unmount <device name like drrm0>
 ```
-Note the block device is the block device created with losetup. This command will create the necessary mapping for dmsetup. Finally, run `sudo cat <path to mapping> | sudo dmsetup create <device name>`
 
-This will create a new device at `/dev/mapper/<device name>` which you can use with tools. Tested with DMDE (for faster recovery, set retries to 0), UFS Explorer and R-Studio
+Finally, you can list all the images that are mounted with
+```
+ddr-mount list
+```
 
 ## Install
-ddr_error_mapping install binaries are available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Windows and Linux binaries (x64 architecture only). I currently do not have a Mac to test ddr_error_mapping with, but building and running it should work regardless. (Note that ddr_error_mapping will only create the device mapping file. You still need Linux to create the device mapper block device!) On Windows, you will get SmartScreen warning. The reason is that Microsoft only trusts apps that have a lot of downloads which punishes niche or newer apps. To get around it, click More Info and now Run Anyway button will appear.
+ddr_error_mapping install binaries are available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only).
 
 ## Build Guide
-We can use cargo to build ddr_error_mapping. Currently tested with rustc version 1.60. To build, we first need to install rustup. For Windows, you can download rustup-init [here for Intel x64](https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe) and [here for Intel 32-bit](https://static.rust-lang.org/rustup/dist/i686-pc-windows-msvc/rustup-init.exe). For Windows, it will offer to download build tools automatically. For Linux (make sure to install build tools like build-essentials on Ubuntu) and macOS (XCode commandline tools will be required), run this command below instead to install rustup:
+We can use cargo to build ddr_error_mapping. Currently tested with rustc version 1.60. To build, we first need to install rustup. Make sure to install build tools like build-essentials on Ubuntu. Finally, run this command below instead to install rustup:
 ```
 curl https://sh.rustup.rs -sSf | sh
 ```
@@ -35,8 +37,8 @@ cargo install --path ./ddrescue_error_mapping
 Now you can run by typing ddrescue_error_mapping in terminal!
 
 ## Limitations
-* `dmsetup` error device did not work under WSL in my testing
-* Tested on Windows 10, Windows 11 (Note that I only tested my application ddr_error_mapping. Device mapper itself did not work under WSL in my testing), Ubuntu 20.04, and Ubuntu 18.04
+* dm-mount does not yet work under WSL
+* Tested on Ubuntu 20.04, and Ubuntu 18.04. Currently, dm-mount does not work under WSL
 
 
 ## License
