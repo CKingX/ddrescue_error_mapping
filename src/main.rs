@@ -1,6 +1,7 @@
 mod error;
 mod mount;
 mod config;
+mod unmount;
 
 use clap::{Parser, Subcommand};
 use std::{ffi::OsString};
@@ -49,7 +50,7 @@ fn main() {
         },
         Commands::Unmount { device } => {
             error::check_root();
-            todo!();
+            unmount::unmount(device)
         },
         Commands::List => {
             list_devices();

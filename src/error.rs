@@ -9,6 +9,7 @@ pub enum ExitCode {
     NonRoot = 5,
     OOMError = 6,
     ParseError = 7,
+    UnmountError = 8,
     UnknownError = 10,
 }
 
@@ -32,6 +33,7 @@ pub const SET_CONFIG_ERROR: &str = "Unable to create configuration";
 pub const READ_CONFIG_ERROR: &str = "Unable to read configuration";
 pub const OOM_ERROR: &str = "Out of memory error!";
 pub const MOUNT_ERROR: &str = "Unable to mount image";
+pub const UNMOUNT_ERROR: &str = "Unmount error: Unable to find device";
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("Unable to find {}", filetype.to_string())
@@ -81,4 +83,9 @@ pub fn check_io_error(error: std::io::Error, filename: String, filetype: FileTyp
 pub fn mount_error() -> ! {
     eprintln!("{MOUNT_ERROR}");
     std::process::exit(ExitCode::MountError as i32);
+}
+
+pub fn no_unmount_device(device: String) -> ! {
+    eprintln!("{UNMOUNT_ERROR} {device}");
+    std::process::exit(ExitCode::UnmountError as i32);
 }

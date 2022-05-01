@@ -12,6 +12,13 @@ pub const DM_LOCATION: &str = "/dev/mapper/";
 pub struct Device {
     pub image_file_path: OsString,
     pub device_mount_point: String,
+    entry: u32
+}
+
+impl Device {
+    fn get_entry(&self) -> u32 {
+        self.entry
+    }
 }
 
 pub struct DeviceIterator<'a> {
@@ -28,6 +35,7 @@ impl Iterator for DeviceIterator<'_> {
                 Some(Device {
                     image_file_path: entry.1.image_file.clone(),
                     device_mount_point: entry.1.dm_mount_point.clone(),
+                    entry: *entry.0,
                 })
             },
             None => None,
