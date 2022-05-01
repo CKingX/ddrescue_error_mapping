@@ -6,11 +6,23 @@ use std::collections::HashMap;
 pub const DM_MOUNT_PATH: &str = "ddrm";
 pub const IMAGE_MOUNT_PATH: &str = "/dev/loop50";
 pub const CONFIG_FOLDER: &str = "ddr_mount";
+pub const DM_LOCATION: &str = "/dev/mapper/";
 
 
 pub struct Device {
     pub image_file_path: OsString,
     pub device_mount_point: String,
+}
+
+impl Device {
+    pub fn print_device(&self) {
+        let image = self.image_file_path.to_str();
+        if image.is_some() {
+            println!("{} => {}{}", image.unwrap(), DM_LOCATION, self.device_mount_point);
+        } else {
+            println!("Image => {}{}", DM_LOCATION, self.device_mount_point);
+        }
+    }
 }
 
 pub struct DeviceIterator<'a> {
@@ -105,13 +117,8 @@ impl Drop for Config {
 pub fn list_devices() {
     let mut config = Config::read_config();
 
-    for devices in config.iter_mut() {
-        let image = devices.image_file_path.to_str();
-        if image.is_some() {
-            println!("{} mounted at {}", image.unwrap(), devices.device_mount_point);
-        } else {
-            println!("Image mounted at {}", devices.device_mount_point);
-        }
+    for device in config.iter_mut() {
+        device.print_device();
     }
 }
 

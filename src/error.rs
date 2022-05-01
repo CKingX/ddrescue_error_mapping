@@ -34,7 +34,7 @@ pub const OOM_ERROR: &str = "Out of memory error!";
 pub const MOUNT_ERROR: &str = "Unable to mount image";
 
 pub fn file_not_found(filetype: FileType) -> String {
-    format!("Unable to find file {}", filetype.to_string())
+    format!("Unable to find {}", filetype.to_string())
 }
 
 pub fn set_config_error() -> ! {

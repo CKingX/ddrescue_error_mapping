@@ -1,10 +1,14 @@
-use std::{ffi::{OsString}, fs, fmt::Write, process::{self, Command}};
+use std::{ffi::{OsString}, fs, fmt::Write, process::{self, Command}, io::ErrorKind};
 
-use crate::error;
+use crate::error::{self, FileType};
 use crate::config;
 use std::path::Path;
+use std::io::Error as IOError;
 
 pub fn mount(image: OsString, map: OsString, block_size: u32) {
+
+    let image = absolute_image_path(image);
+
     let entry = config::get_next_devices();
     let device_name = format!("{}{}",config::DM_MOUNT_PATH,entry);
     let image_mount_path = format!("{}{}",config::IMAGE_MOUNT_PATH, 
@@ -37,7 +41,9 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
     }
     
     let mut config = config::Config::read_config();
-    config.write_device(image_path, entry, image_mount_path, device_name);
+    config.write_device(image, entry, image_mount_path, device_name);
+
+    
 }
 
 fn parse_map(map_path: OsString, device_name: &str) -> String {
@@ -90,4 +96,21 @@ fn create_error(pos: u64, size: u64) -> String {
 /// Creates dmtable for linear device
 fn create_linear(pos: u64, size: u64, device: &str) -> String {
     format!("{} {} linear {device} {}", pos/512, size/512, pos/512)
+}
+
+/// Gets the absolute path of the image
+fn absolute_image_path(path: OsString) -> OsString {
+    let path: &Path = path.as_ref();
+        let result = path.canonicalize();
+        if let Ok(x) = result {
+            x.as_os_str().to_os_string()
+        } else {
+            let file_name = if let Some(x) = path.to_str() {
+                x.to_string()
+            } else {
+                "".to_string()
+            };
+            error::check_io_error(IOError::from(ErrorKind::NotFound),
+            file_name,FileType::ImageFile);
+        }
 }
