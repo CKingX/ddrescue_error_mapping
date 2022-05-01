@@ -70,6 +70,7 @@ version = "1.0.0-beta"
 dependencies = [
  "atty",
  "clap",
+ "indexmap",
  "serde",
  "serde_json",
  "termcolor",

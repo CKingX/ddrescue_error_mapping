@@ -3,8 +3,7 @@ use std::{ffi::OsString, fs::File, io::{ErrorKind, Read}};
 use crate::error::{self, set_config_error};
 use std::collections::HashMap;
 
-pub const DM_MOUNT_PATH: &str = "ddrm";
-pub const IMAGE_MOUNT_PATH: &str = "/dev/loop50";
+pub const DEVICE_NAME: &str = "ddrm";
 pub const CONFIG_FOLDER: &str = "ddr_mount";
 pub const DM_LOCATION: &str = "/dev/mapper/";
 
@@ -12,17 +11,6 @@ pub const DM_LOCATION: &str = "/dev/mapper/";
 pub struct Device {
     pub image_file_path: OsString,
     pub device_mount_point: String,
-}
-
-impl Device {
-    pub fn print_device(&self) {
-        let image = self.image_file_path.to_str();
-        if image.is_some() {
-            println!("{} => {}{}", image.unwrap(), DM_LOCATION, self.device_mount_point);
-        } else {
-            println!("Image => {}{}", DM_LOCATION, self.device_mount_point);
-        }
-    }
 }
 
 pub struct DeviceIterator<'a> {
@@ -117,8 +105,27 @@ impl Drop for Config {
 pub fn list_devices() {
     let mut config = Config::read_config();
 
+    let mut max_size = 0;
+
     for device in config.iter_mut() {
-        device.print_device();
+        let image = device.image_file_path.to_string_lossy();
+        let count = image.chars().count();
+        if count > max_size {
+            max_size = count;
+        }
+    }
+    max_size += 1;
+
+    for device in config.iter_mut() {
+        let image = if let Some(name) = device.image_file_path.to_str() {
+            let count = name.chars().count();
+            name.to_string() + &" ".repeat(max_size - count)
+        } else {
+            let name = "Unknown Image";
+            name.to_string() + &" ".repeat(max_size - name.chars().count())
+        };
+    
+        println!("{image} => {DM_LOCATION}{}",device.device_mount_point);
     }
 }
 

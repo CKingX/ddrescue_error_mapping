@@ -1,34 +1,23 @@
 use std::{ffi::{OsString}, fs, fmt::Write, process::{self, Command}, io::ErrorKind};
 
 use crate::error::{self, FileType};
-use crate::config;
+use crate::config::{self, DM_LOCATION};
 use std::path::Path;
 use std::io::Error as IOError;
 
 pub fn mount(image: OsString, map: OsString, block_size: u32) {
 
     let image = absolute_image_path(image);
-
-    let entry = config::get_next_devices();
-    let device_name = format!("{}{}",config::DM_MOUNT_PATH,entry);
-    let image_mount_path = format!("{}{}",config::IMAGE_MOUNT_PATH, 
-        entry);
+    
+    // mount the image
+    let image_mount_path = losetup_mount(&image, block_size);
     let image_path = OsString::from(&image_mount_path);
-    let device_mapper = &format!("{}",parse_map(map, &image_path.to_str().unwrap()));
-    
-    let image_mount_status = Command::new("losetup")
-                            .args([&image_path, &image, &OsString::from("-b"),
-                            &OsString::from(block_size.to_string())])
-                            .stdin(process::Stdio::null())
-                            .output().unwrap_or_else(|_| error::mount_error());
-    
-    if !image_mount_status.status.success() {
-        error::mount_error();
-    }
 
-    if !Path::new(&image).exists() {
-        ();
-    }
+    // mount the device mapper over image mount, creating error I/O range using map file
+    let entry = config::get_next_devices();
+
+    let device_name = format!("{}{}",config::DEVICE_NAME,entry);
+    let device_mapper = &format!("{}",parse_map(map, &image_path.to_str().unwrap()));
 
     let dm_mount_status = Command::new("dmsetup")
                             .args(["create",&device_name,"--table",&device_mapper])
@@ -41,9 +30,11 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
     }
     
     let mut config = config::Config::read_config();
-    config.write_device(image, entry, image_mount_path, device_name);
+    config.write_device(image.clone(), entry, image_mount_path, device_name.clone());
 
-    
+    if let Some(x) = image.to_str() {
+        println!("{x} is mounted at {DM_LOCATION}{device_name}");
+    }
 }
 
 fn parse_map(map_path: OsString, device_name: &str) -> String {
@@ -113,4 +104,33 @@ fn absolute_image_path(path: OsString) -> OsString {
             error::check_io_error(IOError::from(ErrorKind::NotFound),
             file_name,FileType::ImageFile);
         }
+}
+
+/// Mounts the image using losetup. First, it finds an empty loop device using losetup -f
+/// Then it mounts by doing losetup {loopdev} {path to image file} -b {sector size}
+/// Finally returns the loopdev path
+fn losetup_mount(image: &OsString, block_size: u32) -> String {
+    let losetup_next_loop_device = Command::new("losetup").args(["-f"])
+                            .output().unwrap_or_else(|_| error::mount_error());
+    let image_mount_path = String::from_utf8(losetup_next_loop_device.stdout)
+        .unwrap_or_else(|_| error::mount_error())
+        .lines().nth(0).unwrap_or_else(|| error::mount_error()).to_string();
+
+    let image_mount_status = Command::new("losetup")
+                            .args([&OsString::from(&image_mount_path), 
+                            &image, &OsString::from("-b"),
+                            &OsString::from(block_size.to_string())])
+                            .stdin(process::Stdio::null())
+                            .output().unwrap_or_else(|_| error::mount_error());
+
+    if !image_mount_status.status.success() {
+        eprintln!("{}", String::from_utf8(image_mount_status.stderr).unwrap());
+        error::mount_error();
+    }
+
+    image_mount_path
+}
+
+fn dm_mount() -> String {
+    todo!();
 }
