@@ -29,11 +29,12 @@ impl FileType {
 
 pub const CONVERT_ERROR: &str = "Could not convert hex to decimal";
 pub const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
-pub const SET_CONFIG_ERROR: &str = "Unable to create configuration";
+pub const SET_CONFIG_ERROR: &str = "Unable to open or set configuration";
 pub const READ_CONFIG_ERROR: &str = "Unable to read configuration";
 pub const OOM_ERROR: &str = "Out of memory error!";
 pub const MOUNT_ERROR: &str = "Unable to mount image";
-pub const UNMOUNT_ERROR: &str = "Unmount error: Unable to find device";
+pub const NO_DEVICE_UNMOUNT_ERROR: &str = "Unmount error: Unable to find device";
+pub const UNMOUNT_ERROR: &str = "Unable to unmount device";
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("Unable to find {}", filetype.to_string())
@@ -86,6 +87,11 @@ pub fn mount_error() -> ! {
 }
 
 pub fn no_unmount_device(device: String) -> ! {
-    eprintln!("{UNMOUNT_ERROR} {device}");
+    eprintln!("{NO_DEVICE_UNMOUNT_ERROR} {device}");
+    std::process::exit(ExitCode::UnmountError as i32);
+}
+
+pub fn unmount_error() -> ! {
+    eprintln!("{UNMOUNT_ERROR}");
     std::process::exit(ExitCode::UnmountError as i32);
 }

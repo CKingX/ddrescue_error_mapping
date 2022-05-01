@@ -12,12 +12,22 @@ pub const DM_LOCATION: &str = "/dev/mapper/";
 pub struct Device {
     pub image_file_path: OsString,
     pub device_mount_point: String,
-    entry: u32
+    entry: u32,
+    image_mount: ImageLocation,
+}
+
+#[derive(Clone)]
+pub struct ImageLocation {
+    image_path: String,
 }
 
 impl Device {
-    fn get_entry(&self) -> u32 {
+    pub fn get_entry(&self) -> u32 {
         self.entry
+    }
+
+    pub fn get_image_location(&self) -> String {
+        self.image_mount.image_path.clone()
     }
 }
 
@@ -36,6 +46,9 @@ impl Iterator for DeviceIterator<'_> {
                     image_file_path: entry.1.image_file.clone(),
                     device_mount_point: entry.1.dm_mount_point.clone(),
                     entry: *entry.0,
+                    image_mount: ImageLocation {
+                        image_path: entry.1.image_mount_point.clone(),
+                    },
                 })
             },
             None => None,
@@ -102,6 +115,12 @@ impl Config {
         temp.push("config.json");
         std::fs::write(temp, serde_json::to_string(self).unwrap().as_bytes())
                 .unwrap_or_else(|_| set_config_error());
+    }
+
+    pub fn remove_device(&mut self, entry: u32) {
+        if self.0.remove(&entry).is_none() {
+            error::set_config_error();
+        }
     }
 }
 
