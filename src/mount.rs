@@ -34,6 +34,8 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
 
     if let Some(x) = image.to_str() {
         println!("{x} is mounted at {DM_LOCATION}{device_name}");
+    } else {
+        println!("Image is mounted at {DM_LOCATION}{device_name}");
     }
 }
 
@@ -114,11 +116,12 @@ fn losetup_mount(image: &OsString, block_size: u32) -> String {
                             .output().unwrap_or_else(|_| error::mount_error());
     let image_mount_path = String::from_utf8(losetup_next_loop_device.stdout)
         .unwrap_or_else(|_| error::mount_error())
-        .lines().nth(0).unwrap_or_else(|| error::mount_error()).to_string();
+        .trim_matches('\n').to_string();
 
     let image_mount_status = Command::new("losetup")
                             .args([&OsString::from(&image_mount_path), 
-                            &image, &OsString::from("-b"),
+                            &image, &OsString::from("-r"),
+                            &OsString::from("-b"),
                             &OsString::from(block_size.to_string())])
                             .stdin(process::Stdio::null())
                             .output().unwrap_or_else(|_| error::mount_error());
