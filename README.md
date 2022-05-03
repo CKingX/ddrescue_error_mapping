@@ -4,12 +4,12 @@
 This is a simple tool that mounts ddrescue images with their map files, allowing it to present I/O errors for any bad sectors or untried areas to any Linux recovery tool. (Current testing shows that this does *not* work under WSL). To mount an image, you need both an image and the ddrescue map file. While ddrescue is the obvious tool that can create both, other tools can also create ddrescue compatible map files (like HDDSuperClone)
 
 ## Usage
-Once you have an image, mount the image. Make sure to get the sector size (the default for mounting images is 512 bytes, but modern hard drivs use 4096 bytes sector size)
+Once you have an image, mount the image. Make sure to get the sector size (the default for mounting images is 512 bytes, but modern hard drives use 4096 bytes sector size)
 ```
 sudo ddr-mount mount -i <path to image file> -m <path to map file> -b <sector size>
 ```
 
-This will create a block device at /dev/mapper/ddrm# (The exact number will be printed) with the specified sector size in `-b` parameter. The image itself is mounted read-only, so there is no risk to changing the image file.
+This will create a block device at /dev/mapper/ddrm# (The exact number will be printed) with the specified sector size in `-b` parameter. However, the sector size must be multiple of 512 bytes. The image itself is mounted read-only, so there is no risk to changing the image file.
 
 Once done, you can unmount the image:
 ```
@@ -22,10 +22,10 @@ ddr-mount list
 ```
 
 ## Install
-dr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only).
+ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only).
 
 ## Build Guide
-We can use cargo to build dr-mount. Currently tested with rustc version 1.60. To build, we first need to install rustup. Make sure to install build tools like build-essentials on Ubuntu. Finally, run this command below instead to install rustup:
+We can use cargo to build dr-mount. Currently tested with rustc version 1.60. To build, we first need to install rustup. Make sure to install build tools like build-essentials on Ubuntu. To begin, run this command below instead to install rustup:
 ```
 curl https://sh.rustup.rs -sSf | sh
 ```
@@ -37,8 +37,9 @@ cargo install --path ./ddrescue_error_mapping
 Now you can run by typing dm-mount in terminal!
 
 ## Limitations
-* dm-mount does not yet work under WSL
+* ddr-mount does not yet work under WSL
 * Tested on Ubuntu 20.04, and Ubuntu 18.04. Currently, dm-mount does not work under WSL
+* Can only mount images with a sector size that is a multiple of 512 bytes
 
 
 ## License
