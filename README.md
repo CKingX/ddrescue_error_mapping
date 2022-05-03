@@ -27,6 +27,13 @@ ddr-mount list
 ## Install
 ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only).
 
+## Upgrade instructions
+If previous version was installed using the deb package, first uninstall the older version
+```
+sudo apt remove ddr-mount
+```
+Then install ddr-mount using deb file as usual
+
 ## Build Guide
 We can use cargo to build ddr-mount. Currently tested with rustc version 1.60. To build, we first need to install rustup. Make sure to install build tools like build-essentials on Ubuntu. To begin, run this command below instead to install rustup:
 ```
@@ -37,7 +44,7 @@ Then, we can build:
 git clone https://github.com/CKingX/ddrescue_error_mapping.git
 cargo install --path ./ddrescue_error_mapping
 ```
-Now you can run by typing dm-mount in terminal!
+Now you can run by typing ddr-mount in terminal! Upgrading it is as simple as replacing cloning the repository again and running the cargo install command again.
 
 ## Limitations
 * ddr-mount does not yet work under WSL
