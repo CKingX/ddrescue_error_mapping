@@ -2,48 +2,16 @@ mod error;
 mod mount;
 mod config;
 mod unmount;
+mod arguments;
 
-use clap::{Parser, Subcommand};
-use std::{ffi::OsString};
 use mount::*;
 use config::list_devices;
-
-#[derive(Parser)]
-#[clap(author, version, about)]
-struct Cli {
-    #[clap(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Mounts the image but with the map file to present I/O errors. 
-    #[clap(long_about = "Mounts the image but with the map file to present I/O \
-    errors. This is done by converting bad sectors and any areas not yet read \
-    or skipped by ddrescue into I/O errors.")]
-    Mount {
-        #[clap(short,long)]
-        /// Path to disk image
-        image: OsString,
-        #[clap(short,long)]
-        /// Path to ddrescue map file
-        map: OsString,
-        /// Sector size of disk that was imaged
-        #[clap(short,long,default_value_t = 512)]
-        block_size: u32},
-    /// Unmounts any image mounted by ddr-mount
-    Unmount {
-        /// Device previously mounted with ddr-mount mount (ex: ddrm0)
-        device: String
-    },
-    /// List mounted images and their mount points
-    List,
-}
+use arguments::*;
 
 fn main() {
-    let args = Cli::parse();
+    let args = handle_arguments();
 
-    match args.command {
+    match args {
         Commands::Mount{image,map,block_size} => {
             error::check_root();
             mount(image,map,block_size);
@@ -52,6 +20,10 @@ fn main() {
             error::check_root();
             unmount::unmount(device)
         },
+        Commands::UnmountAll => {
+            error::check_root();
+            unmount::unmount_all();
+        }
         Commands::List => {
             list_devices();
         },

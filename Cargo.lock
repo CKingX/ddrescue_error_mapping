@@ -43,6 +43,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap_complete"
+version = "3.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d7ca9141e27e6ebc52e3c378b0c07f3cea52db46ed1cc5861735fb697b56356"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "clap_derive"
 version = "3.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -66,10 +75,11 @@ dependencies = [
 
 [[package]]
 name = "ddr-mount"
-version = "1.0.0-beta"
+version = "1.0.0-beta.2"
 dependencies = [
  "atty",
  "clap",
+ "clap_complete",
  "serde",
  "serde_json",
  "termcolor",

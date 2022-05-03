@@ -1,4 +1,4 @@
-use std::{ffi::{OsString}, fs, fmt::Write, process::{self, Command}, io::ErrorKind};
+use std::{ffi::{OsString}, fs, fmt::Write, process::{self, Command}, io::{ErrorKind, Write as IoWrite}};
 
 use crate::error::{self, FileType};
 use crate::config::{self, DM_LOCATION};
@@ -130,14 +130,20 @@ fn dm_mount(map: &OsString, image_path: &OsString) -> (u32,String) {
     let device_name = format!("{}{}",config::DEVICE_NAME,entry);
     let device_mapper = &format!("{}",parse_map(map, &image_path.to_str().unwrap()));
 
-    let dm_mount_status = Command::new("dmsetup")
+    let mut dm_mount_process = Command::new("dmsetup")
                             .args(["create",&device_name,"--table",&device_mapper])
-                            .stdin(process::Stdio::null())
-                            .output().unwrap_or_else(|_| error::mount_error());
+                            .stdin(process::Stdio::piped())
+                            .spawn().unwrap_or_else(|_| error::mount_error());
+    dm_mount_process.stdin.take().unwrap_or_else(|| error::mount_error())
+        .write_all(device_mapper.as_bytes()).unwrap_or_else(|_| error::mount_error());
+    
+    let dm_mount_status = dm_mount_process.wait_with_output();
 
-    if !dm_mount_status.status.success() {
+
+    if !dm_mount_status.unwrap_or_else(|_| error::mount_error()).status.success() {
         eprintln!("Unable to read image file");
         std::process::exit(error::ExitCode::FileError as i32);
     }
+
     (entry, device_name)
 }

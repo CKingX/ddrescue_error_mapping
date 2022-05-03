@@ -122,6 +122,10 @@ impl Config {
             error::set_config_error();
         }
     }
+
+    pub fn clear_devices(&mut self) {
+        self.0.clear();
+    }
 }
 
 impl Drop for Config {
