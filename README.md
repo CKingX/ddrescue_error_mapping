@@ -15,7 +15,10 @@ Once done, you can unmount the image:
 ```
 sudo ddr-mount unmount <device name like drrm0>
 ```
-
+You can also unmount all images:
+```
+sudo ddr-mount unmount-all
+```
 Finally, you can list all the images that are mounted with
 ```
 ddr-mount list
