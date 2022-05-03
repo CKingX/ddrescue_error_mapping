@@ -39,6 +39,7 @@ pub fn handle_arguments() -> Commands {
     Cli::parse().command
 }
 
-pub fn handle_command() -> clap::App<'static> {
+#[allow(deprecated)]
+pub fn _handle_command() -> clap::App<'static> {
     Cli::command()
 }

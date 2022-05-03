@@ -10,8 +10,8 @@ fn main() -> Result<(), std::io::Error> {
         Some(outdir) => outdir,
     };
 
-    let mut cmd = handle_command();
-    let path = generate_to(
+    let mut cmd = _handle_command();
+    generate_to(
         Bash,
         &mut cmd,
         "ddr-mount",

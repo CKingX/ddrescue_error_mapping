@@ -1,4 +1,5 @@
 use std::{env, io::ErrorKind};
+use crate::unmount::*;
 
 #[repr(i32)]
 pub enum ExitCode {
@@ -94,4 +95,9 @@ pub fn no_unmount_device(device: String) -> ! {
 pub fn unmount_error() -> ! {
     eprintln!("{UNMOUNT_ERROR}");
     std::process::exit(ExitCode::UnmountError as i32);
+}
+
+pub fn mount_error_clean(device: &str) -> ! {
+    let _ = crate::unmount::unmount_image(device.clone().to_string(), ImageError::HideError);
+    unmount_error();
 }

@@ -126,24 +126,20 @@ fn losetup_mount(image: &OsString, block_size: u32) -> String {
 /// ```dmsetup create {device name} --table {parse map}```
 fn dm_mount(map: &OsString, image_path: &OsString) -> (u32,String) {
     let entry = config::get_next_devices();
+    let image_path = image_path.to_str().unwrap();
 
     let device_name = format!("{}{}",config::DEVICE_NAME,entry);
-    let device_mapper = &format!("{}",parse_map(map, &image_path.to_str().unwrap()));
+    let device_mapper = &format!("{}",parse_map(map, image_path));
 
     let mut dm_mount_process = Command::new("dmsetup")
                             .args(["create",&device_name,"--table",&device_mapper])
                             .stdin(process::Stdio::piped())
-                            .spawn().unwrap_or_else(|_| error::mount_error());
-    dm_mount_process.stdin.take().unwrap_or_else(|| error::mount_error())
-        .write_all(device_mapper.as_bytes()).unwrap_or_else(|_| error::mount_error());
+                            .spawn().unwrap_or_else(|_| error::mount_error_clean(image_path));
+    dm_mount_process.stdin.take().unwrap_or_else(|| error::mount_error_clean(image_path))
+        .write_all(device_mapper.as_bytes()).unwrap_or_else(|_| error::mount_error_clean(image_path));
     
-    let dm_mount_status = dm_mount_process.wait_with_output();
-
-
-    if !dm_mount_status.unwrap_or_else(|_| error::mount_error()).status.success() {
-        eprintln!("Unable to read image file");
-        std::process::exit(error::ExitCode::FileError as i32);
-    }
+    dm_mount_process.wait_with_output()
+        .unwrap_or_else(|_| error::mount_error_clean(image_path));
 
     (entry, device_name)
 }
