@@ -1,7 +1,7 @@
 [package]
 name = "ddr-mount"
 license = "AGPL-3.0-only"
-version = "1.0.0-beta.3"
+version = "1.0.0-rc.1"
 edition = "2021"
 authors = ["CKingX"]
 description = "ddr-mount allows you to mount image files while passing bad sectors"

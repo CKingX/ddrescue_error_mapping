@@ -99,5 +99,5 @@ pub fn unmount_error() -> ! {
 
 pub fn mount_error_clean(device: &str) -> ! {
     let _ = crate::unmount::unmount_image(device.clone().to_string(), ImageError::HideError);
-    unmount_error();
+    mount_error();
 }
