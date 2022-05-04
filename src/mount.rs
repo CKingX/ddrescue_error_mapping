@@ -123,7 +123,7 @@ fn losetup_mount(image: &OsString, block_size: u32) -> String {
 }
 
 /// Mounts the image using the parse map with the following commmand
-/// ```dmsetup create {device name} --table {parse map}```
+/// ```dmsetup create {device name}``` and passes parse map in stdin
 fn dm_mount(map: &OsString, image_path: &OsString) -> (u32,String) {
     let entry = config::get_next_devices();
     let image_path = image_path.to_str().unwrap();
