@@ -1,0 +1,19 @@
+# Mapfile. Created by GNU ddrescue version 1.25
+# Command line: ddrescue -v /dev/disk3 /Volumes/MY PASSPORT/untitled folder2/diskimage_20220416.img /Volumes/MY PASSPORT/untitled folder2/recovery.log
+# Start time:   2022-04-16 15:56:01
+# Current time: 2022-04-17 10:39:20
+# Finished
+# current_pos  current_status  current_pass
+0x24E0015C00     +               1
+#      pos        size  status
+0x00000000  0x18F9C0A000  +
+0x18F9C0A000  0x00002000  -
+0x18F9C0C000  0x00242000  +
+0x18F9E4E000  0x00002000  -
+0x18F9E50000  0x62BEBC000  +
+0x1F25D0C000  0x00002000  -
+0x1F25D0E000  0x13A30C000  +
+0x206001A000  0x00003000  -
+0x206001D000  0x47FFF7000  +
+0x24E0014000  0x00002000  -
+0x24E0016000  0x702B040000  +

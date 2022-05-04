@@ -132,7 +132,7 @@ fn dm_mount(map: &OsString, image_path: &OsString) -> (u32,String) {
     let device_mapper = &format!("{}",parse_map(map, image_path));
 
     let mut dm_mount_process = Command::new("dmsetup")
-                            .args(["create",&device_name,"--table",&device_mapper])
+                            .args(["create",&device_name])
                             .stdin(process::Stdio::piped())
                             .spawn().unwrap_or_else(|_| error::mount_error_clean(image_path));
     dm_mount_process.stdin.take().unwrap_or_else(|| error::mount_error_clean(image_path))

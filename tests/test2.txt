@@ -1,0 +1,9 @@
+# Mapfile. Created by GNU ddrescue version 1.23
+# Command line: ddrescue /dev/loop50 ./ddres.bin ./log.file
+# Start time:   2022-04-30 12:22:13
+# Current time: 2022-04-30 12:22:40
+# Finished
+# current_pos  current_status  current_pass
+0x3FFF0000     +               1
+#      pos        size  status
+0x00000000  0x40000000  +
