@@ -3,6 +3,7 @@ mod mount;
 mod config;
 mod unmount;
 mod arguments;
+mod parser;
 
 use mount::*;
 use config::list_devices;
