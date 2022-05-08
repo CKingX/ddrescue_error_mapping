@@ -1,4 +1,3 @@
-
 use clap_complete::{generate_to, shells::Bash};
 use std::env;
 
@@ -11,12 +10,7 @@ fn main() -> Result<(), std::io::Error> {
     };
 
     let mut cmd = _handle_command();
-    generate_to(
-        Bash,
-        &mut cmd,
-        "ddr-mount",
-        outdir
-    )?;
+    generate_to(Bash, &mut cmd, "ddr-mount", outdir)?;
 
     Ok(())
 }

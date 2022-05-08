@@ -1,13 +1,16 @@
-use serde::{Deserialize, Serialize};
-use std::{ffi::OsString, fs::File, io::{ErrorKind, Read}};
 use crate::error::{self, set_config_error};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::os::unix::prelude::*;
+use std::{
+    ffi::OsString,
+    fs::File,
+    io::{ErrorKind, Read},
+};
 
 pub const DEVICE_NAME: &str = "ddrm";
 pub const CONFIG_FOLDER: &str = "ddr-mount";
 pub const DM_LOCATION: &str = "/dev/mapper/";
-
 
 pub struct Device {
     pub image_file_path: OsString,
@@ -32,7 +35,7 @@ impl Device {
 }
 
 pub struct DeviceIterator<'a> {
-    iterator: std::collections::hash_map::IterMut<'a,u32, ConfigEntry>,
+    iterator: std::collections::hash_map::IterMut<'a, u32, ConfigEntry>,
 }
 
 impl Iterator for DeviceIterator<'_> {
@@ -41,16 +44,14 @@ impl Iterator for DeviceIterator<'_> {
     fn next(&mut self) -> Option<Self::Item> {
         let item = self.iterator.next();
         match item {
-            Some(entry) => {
-                Some(Device {
-                    image_file_path: entry.1.image_file.clone(),
-                    device_mount_point: entry.1.dm_mount_point.clone(),
-                    entry: *entry.0,
-                    image_mount: ImageLocation {
-                        image_path: entry.1.image_mount_point.clone(),
-                    },
-                })
-            },
+            Some(entry) => Some(Device {
+                image_file_path: entry.1.image_file.clone(),
+                device_mount_point: entry.1.dm_mount_point.clone(),
+                entry: *entry.0,
+                image_mount: ImageLocation {
+                    image_path: entry.1.image_mount_point.clone(),
+                },
+            }),
             None => None,
         }
     }
@@ -71,12 +72,10 @@ impl Config {
     pub fn read_config() -> Config {
         let mut temp = std::env::temp_dir();
         temp.push(CONFIG_FOLDER);
-        std::fs::create_dir_all(&temp)
-                            .unwrap_or_else(|_| error::set_config_error());
+        std::fs::create_dir_all(&temp).unwrap_or_else(|_| error::set_config_error());
         temp.push("config.json");
 
-        let file = File::options().read(true)
-        .mode(664).open(&temp);
+        let file = File::options().read(true).mode(0o664).open(&temp);
 
         if let Err(error) = file {
             if let ErrorKind::NotFound = error.kind() {
@@ -86,27 +85,42 @@ impl Config {
             }
         } else {
             let mut config_entries = String::new();
-            let file_size = file.unwrap().read_to_string(&mut config_entries)
+            let file_size = file
+                .unwrap()
+                .read_to_string(&mut config_entries)
                 .unwrap_or_else(|_| set_config_error());
 
             if file_size == 0 {
                 config_entries = "{}".to_string();
             }
-            let config: Config = serde_json::from_str(&config_entries).unwrap_or_else(|_| set_config_error());
+            let config: Config =
+                serde_json::from_str(&config_entries).unwrap_or_else(|_| set_config_error());
 
-            config 
+            config
         }
     }
 
     pub fn iter_mut(&mut self) -> DeviceIterator {
-        DeviceIterator { iterator: self.0.iter_mut() }
+        DeviceIterator {
+            iterator: self.0.iter_mut(),
+        }
     }
 
-    pub fn write_device(&mut self, image_path: OsString, entry: u32, image_mount: String, dm_mount_point: String) {
-        self.0.insert(entry,ConfigEntry {
-            image_file: image_path, 
-            image_mount_point: image_mount,
-            dm_mount_point,});
+    pub fn write_device(
+        &mut self,
+        image_path: OsString,
+        entry: u32,
+        image_mount: String,
+        dm_mount_point: String,
+    ) {
+        self.0.insert(
+            entry,
+            ConfigEntry {
+                image_file: image_path,
+                image_mount_point: image_mount,
+                dm_mount_point,
+            },
+        );
     }
 
     pub fn write_config(&mut self) {
@@ -114,7 +128,7 @@ impl Config {
         temp.push(CONFIG_FOLDER);
         temp.push("config.json");
         std::fs::write(temp, serde_json::to_string(self).unwrap().as_bytes())
-                .unwrap_or_else(|_| set_config_error());
+            .unwrap_or_else(|_| set_config_error());
     }
 
     pub fn remove_device(&mut self, entry: u32) {
@@ -156,8 +170,8 @@ pub fn list_devices() {
             let name = "Unknown Image";
             name.to_string() + &" ".repeat(max_size - name.chars().count())
         };
-    
-        println!("{image} => {DM_LOCATION}{}",device.device_mount_point);
+
+        println!("{image} => {DM_LOCATION}{}", device.device_mount_point);
     }
 
     std::mem::forget(config);
@@ -167,7 +181,7 @@ pub fn get_next_devices() -> u32 {
     let config = &Config::read_config().0;
     let mut next_device = 0;
     for num in 0..=u32::MAX {
-        if let Some(_) = config.get(&num) {
+        if config.get(&num).is_some() {
             continue;
         }
         next_device = num;

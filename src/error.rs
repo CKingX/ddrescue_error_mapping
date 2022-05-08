@@ -1,8 +1,9 @@
-use std::{env, io::ErrorKind, process};
 use crate::unmount::*;
 use atty::{self, Stream};
-use termcolor::{StandardStream, self, ColorChoice, Color, WriteColor, ColorSpec};
+use std::fmt::Display;
 use std::io::Write;
+use std::{env, io::ErrorKind, process};
+use termcolor::{self, Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 #[repr(i32)]
 pub enum ExitCode {
@@ -49,43 +50,42 @@ pub fn file_not_found(filetype: FileType) -> String {
 }
 
 pub fn sector_error() -> ! {
-    print_error(format!("{}", SECTOR_SIZE_ERROR));
+    print_error(SECTOR_SIZE_ERROR);
     process::exit(ExitCode::SectorSizeError as i32);
 }
 
-fn print_error(error: String) {
+fn print_error(error: impl Display) {
     if atty::is(Stream::Stderr) {
         let mut stderr = StandardStream::stderr(ColorChoice::Always);
         let _ = stderr.set_color(ColorSpec::new().set_fg(Some(Color::Red)));
         let _ = writeln!(&mut stderr, "{}", error);
-
     } else {
         eprintln!("{}", error);
     }
 }
 
 pub fn set_config_error() -> ! {
-    print_error(format!("{}", SET_CONFIG_ERROR));
+    print_error(SET_CONFIG_ERROR);
     process::exit(ExitCode::ConfigError as i32);
 }
 
 pub fn handle_string_write(result: Result<(), std::fmt::Error>) {
     if result.is_err() {
-        print_error(format!("{OOM_ERROR}"));
+        print_error(OOM_ERROR);
         process::exit(ExitCode::OOMError as i32);
     }
 }
 
 pub fn read_config_error() -> ! {
-    print_error(format!("{}", READ_CONFIG_ERROR));
+    print_error(READ_CONFIG_ERROR);
     process::exit(ExitCode::ConfigError as i32);
 }
 
 pub fn check_root() {
-    let env_vars = env::vars().filter(|n| n.0 == "USER").next();
+    let env_vars = env::vars().find(|n| n.0 == "USER");
     if let Some((_, user)) = env_vars {
-        if user != "root"{
-            let arguments = env::args().reduce(|a,b| format!("{a} {b}")).unwrap(); 
+        if user != "root" {
+            let arguments = env::args().reduce(|a, b| format!("{a} {b}")).unwrap();
             print_error(format!("You must run as root.\nTry sudo {arguments}"));
             process::exit(ExitCode::NonRoot as i32);
         }
@@ -99,14 +99,14 @@ pub fn check_io_error(error: std::io::Error, filename: String, filetype: FileTyp
             process::exit(ExitCode::FileError as i32);
         }
         error => {
-            print_error(format!("Unknown error while reading {filename} {}", error.to_string()));
+            print_error(format!("Unknown error while reading {filename} {}", error));
             process::exit(ExitCode::UnknownError as i32);
         }
     }
 }
 
 pub fn mount_error() -> ! {
-    print_error(format!("{MOUNT_ERROR}"));
+    print_error(MOUNT_ERROR);
     process::exit(ExitCode::MountError as i32);
 }
 
@@ -116,11 +116,11 @@ pub fn no_unmount_device(device: String) -> ! {
 }
 
 pub fn unmount_error() -> ! {
-    print_error(format!("{UNMOUNT_ERROR}"));
+    print_error(UNMOUNT_ERROR);
     process::exit(ExitCode::UnmountError as i32);
 }
 
 pub fn mount_error_clean(device: &str) -> ! {
-    let _ = crate::unmount::unmount_image(device.clone().to_string(), ImageError::HideError);
+    let _ = crate::unmount::unmount_image(device.to_string(), ImageError::HideError);
     mount_error();
 }

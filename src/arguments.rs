@@ -1,5 +1,5 @@
-use clap::{Parser, Subcommand, IntoApp};
-use std::{ffi::OsString};
+use clap::{IntoApp, Parser, Subcommand};
+use std::ffi::OsString;
 
 #[derive(Parser)]
 #[clap(author, version, about)]
@@ -10,24 +10,25 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Mounts the image but with the map file to present I/O errors. 
+    /// Mounts the image but with the map file to present I/O errors.
     #[clap(long_about = "Mounts the image but with the map file to present I/O \
     errors. This is done by converting bad sectors and any areas not yet read \
     or skipped by ddrescue into I/O errors.")]
     Mount {
-        #[clap(short,long)]
+        #[clap(short, long)]
         /// Path to disk image
         image: OsString,
-        #[clap(short,long)]
+        #[clap(short, long)]
         /// Path to ddrescue map file
         map: OsString,
         /// Sector size of disk that was imaged
-        #[clap(short,long,default_value_t = 512)]
-        block_size: u32},
+        #[clap(short, long, default_value_t = 512)]
+        block_size: u32,
+    },
     /// Unmounts any image mounted by ddr-mount
     Unmount {
         /// Device previously mounted with ddr-mount mount (ex: ddrm0)
-        device: String
+        device: String,
     },
     /// Unmounts all images mounted by ddr-mount
     UnmountAll,
