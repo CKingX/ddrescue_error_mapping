@@ -2,6 +2,7 @@ use crate::error;
 use std::{ffi::OsString, fmt::Write, fs};
 
 /// Parses ddrescue map file to dmsetup table
+/// Structure of map file can be found [here](https://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html#Mapfile-structure)
 pub fn parse_map(map_path: &OsString, device_name: &str) -> String {
     let mut output = String::new();
     let contents = fs::read_to_string(map_path.clone()).unwrap_or_else(|error| {
@@ -17,6 +18,8 @@ pub fn parse_map(map_path: &OsString, device_name: &str) -> String {
         .map(|s| s.trim())
         .filter(|s| !s.is_empty() && !s.contains('#'))
         .skip(1);
+
+    let mut prev_entry = 0;
 
     for line in file_line {
         let mut map_line = line.split_ascii_whitespace();
@@ -40,6 +43,13 @@ pub fn parse_map(map_path: &OsString, device_name: &str) -> String {
             ));
         } else {
             error::handle_string_write(writeln!(output, "{}", create_error(pos, size)));
+        }
+
+        // Check if sector is contiguous
+        if pos != prev_entry {
+            error::contiguous_error();
+        } else {
+            prev_entry = pos + size;
         }
     }
 

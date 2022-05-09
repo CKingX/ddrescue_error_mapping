@@ -5,6 +5,7 @@ use std::io::Write;
 use std::{env, io::ErrorKind, process};
 use termcolor::{self, Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
+/// Represents all the exit codes of the program with 0 being success and the rest being errors
 #[repr(i32)]
 pub enum ExitCode {
     FileError = 1,
@@ -15,7 +16,6 @@ pub enum ExitCode {
     OOMError = 6,
     ParseError = 7,
     UnmountError = 8,
-    /// Sector Size not a multiple of 512
     SectorSizeError = 9,
     UnknownError = 10,
 }
@@ -44,6 +44,12 @@ pub const NO_DEVICE_UNMOUNT_ERROR: &str = "Unmount error: Unable to find device"
 pub const UNMOUNT_ERROR: &str = "Unable to unmount device";
 pub const FILE_NOT_FOUND_ERROR: &str = "Unable to find";
 pub const SECTOR_SIZE_ERROR: &str = "Sector size is not a multiple of 512";
+pub const CONTIGUOUS_ERROR: &str = "ddrescue map of disk is not contiguous";
+
+pub fn contiguous_error() -> ! {
+    print_error(CONTIGUOUS_ERROR);
+    process::exit(ExitCode::ParseError as i32);
+}
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())
