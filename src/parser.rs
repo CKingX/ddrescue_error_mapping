@@ -64,7 +64,7 @@ fn create_linear(pos: u64, size: u64, device: &str) -> String {
 
 fn sector(size: u64) -> u64 {
     if size % 512 != 0 {
-        error::sector_error();
+        error::parse_error();
     } else {
         size / 512
     }

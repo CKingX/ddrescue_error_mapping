@@ -49,6 +49,11 @@ pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())
 }
 
+pub fn parse_error() -> ! {
+    print_error(PARSE_ERROR);
+    process::exit(ExitCode::ParseError as i32);
+}
+
 pub fn sector_error() -> ! {
     print_error(SECTOR_SIZE_ERROR);
     process::exit(ExitCode::SectorSizeError as i32);
