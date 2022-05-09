@@ -34,7 +34,7 @@ impl FileType {
     }
 }
 
-pub const CONVERT_ERROR: &str = "Could not convert hex to decimal";
+pub const CONVERT_ERROR: &str = "Could not convert ddrescue entry to decimal";
 pub const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
 pub const SET_CONFIG_ERROR: &str = "Unable to open or set configuration";
 pub const READ_CONFIG_ERROR: &str = "Unable to read configuration";
@@ -47,6 +47,11 @@ pub const SECTOR_SIZE_ERROR: &str = "Sector size is not a multiple of 512";
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())
+}
+
+pub fn convert_error() -> ! {
+    print_error(CONVERT_ERROR);
+    process::exit(ExitCode::ParseError as i32);
 }
 
 pub fn parse_error() -> ! {

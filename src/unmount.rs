@@ -8,6 +8,7 @@ pub enum ImageError {
     HideError,
 }
 
+/// Unmounts a device
 pub fn unmount(device_name: String) {
     let mut config = Config::read_config();
     let mut devices = config.iter_mut();
@@ -20,6 +21,7 @@ pub fn unmount(device_name: String) {
     }
 }
 
+/// Unmounts device from device mapper
 pub fn unmount_device_mapper(name: String) {
     let output = Command::new("dmsetup")
         .args(["remove", &name])
@@ -31,6 +33,7 @@ pub fn unmount_device_mapper(name: String) {
     }
 }
 
+/// Unmounts image from losetup
 pub fn unmount_image(name: String, error: ImageError) -> Result<(), ()> {
     let output = Command::new("losetup").args(["-d", &name]).output();
 
@@ -48,6 +51,7 @@ pub fn unmount_image(name: String, error: ImageError) -> Result<(), ()> {
     Ok(())
 }
 
+/// Function that accepts a specific device and removes it from config
 fn unmount_device(device: Device, config: Option<&mut Config>) {
     let entry = format!("{}{}", config::DEVICE_NAME, device.get_entry());
     unmount_device_mapper(entry.clone());
@@ -58,6 +62,7 @@ fn unmount_device(device: Device, config: Option<&mut Config>) {
     println!("Device {entry} unmounted");
 }
 
+/// Unmounts all devices
 pub fn unmount_all() {
     let mut config = Config::read_config();
     let devices = config.iter_mut();

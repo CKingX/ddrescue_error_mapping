@@ -10,6 +10,7 @@ use crate::parser::parse_map;
 use std::io::Error as IOError;
 use std::path::Path;
 
+/// Mounts the image
 pub fn mount(image: OsString, map: OsString, block_size: u32) {
     if block_size % 512 != 0 {
         error::sector_error();
