@@ -1,5 +1,6 @@
 # ddr-mount
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FCKingX%2Fddrescue_error_mapping?ref=badge_shield)
+[![Rust](https://github.com/CKingX/ddrescue_error_mapping/actions/workflows/rust.yml/badge.svg)](https://github.com/CKingX/ddrescue_error_mapping/actions/workflows/rust.yml)
 
 This is a simple tool that mounts ddrescue images with their map files, allowing it to present I/O errors for any bad sectors or untried areas to any Linux recovery tool. (Current testing shows that this does *not* work under WSL). To mount an image, you need both an image and the ddrescue map file. While ddrescue is the obvious tool that can create both, other tools can also create ddrescue compatible map files (like HDDSuperClone)
 
