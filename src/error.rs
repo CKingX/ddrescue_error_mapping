@@ -44,7 +44,7 @@ pub const NO_DEVICE_UNMOUNT_ERROR: &str = "Unmount error: Unable to find device"
 pub const UNMOUNT_ERROR: &str = "Unable to unmount device";
 pub const FILE_NOT_FOUND_ERROR: &str = "Unable to find";
 pub const SECTOR_SIZE_ERROR: &str = "Sector size is not a multiple of 512";
-pub const CONTIGUOUS_ERROR: &str = "ddrescue map of disk is not contiguous";
+pub const CONTIGUOUS_ERROR: &str = "ddrescue map of disk is not contiguous or is overlapping";
 
 pub fn contiguous_error() -> ! {
     print_error(CONTIGUOUS_ERROR);

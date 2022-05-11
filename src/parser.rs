@@ -21,13 +21,20 @@ pub fn parse_map(map_path: &OsString, device_name: &str) -> String {
 
     let mut prev_entry = 0;
 
+    #[allow(clippy::redundant_closure)]
     for line in file_line {
         let mut map_line = line.split_ascii_whitespace();
-        let pos_string = map_line.next().expect(error::PARSE_ERROR).to_string();
-        let size_string = map_line.next().expect(error::PARSE_ERROR).to_string();
+        let pos_string = map_line
+            .next()
+            .unwrap_or_else(|| error::parse_error())
+            .to_string();
+        let size_string = map_line
+            .next()
+            .unwrap_or_else(|| error::parse_error())
+            .to_string();
         let status = map_line
             .next()
-            .expect(error::PARSE_ERROR)
+            .unwrap_or_else(|| error::parse_error())
             .chars()
             .next()
             .unwrap();

@@ -22,9 +22,9 @@ pub fn unmount(device_name: String) {
 }
 
 /// Unmounts device from device mapper
-pub fn unmount_device_mapper(name: String) {
+pub fn unmount_device_mapper(name: &str) {
     let output = Command::new("dmsetup")
-        .args(["remove", &name])
+        .args(["remove", name])
         .output()
         .unwrap_or_else(|_| error::unmount_error());
 
@@ -54,7 +54,7 @@ pub fn unmount_image(name: String, error: ImageError) -> Result<(), ()> {
 /// Function that accepts a specific device and removes it from config
 fn unmount_device(device: Device, config: Option<&mut Config>) {
     let entry = format!("{}{}", config::DEVICE_NAME, device.get_entry());
-    unmount_device_mapper(entry.clone());
+    unmount_device_mapper(&entry);
     let _ = unmount_image(device.get_image_location(), ImageError::ShowError);
     if let Some(config) = config {
         config.remove_device(device.get_entry());
