@@ -9,12 +9,16 @@ use arguments::*;
 use config::list_devices;
 use mount::*;
 
+use log::info;
+
 fn main() {
     let args = handle_arguments();
 
     env_logger::Builder::new()
         .filter_level(args.verbose.log_level_filter())
         .init();
+
+    info!("ddr-mount {}", env!("CARGO_PKG_VERSION"));
 
     match args.command {
         Commands::Mount {

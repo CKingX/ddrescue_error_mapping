@@ -14,12 +14,9 @@ use std::path::Path;
 /// Mounts the image
 pub fn mount(image: OsString, map: OsString, block_size: u32) {
     info!(
-        "mount image: {}, map: {}, block size: {block_size}",
-        image.to_string_lossy(),
-        map.to_string_lossy()
+        "mount image: {:?}, map: {:?}, block size: {block_size}",
+        image, map
     );
-    info!("image additional: {:?}", image);
-    info!("map additional: {:?}", map);
 
     if block_size % 512 != 0 {
         error!("Sector size not a multiple of 512, {}", block_size % 512);
@@ -28,11 +25,7 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
 
     let image = absolute_image_path(image);
 
-    info!(
-        "Full path of image: {} additional: {:?}",
-        image.to_string_lossy(),
-        image
-    );
+    info!("Full path of image: {image}");
 
     // mount the image
     let image_mount_path = losetup_mount(&image, block_size);
@@ -149,6 +142,7 @@ fn dm_mount(map: &OsString, image_path: &OsString) -> (u32, String) {
 
     if !status.status.success() {
         eprintln!("{}", String::from_utf8(status.stderr).unwrap());
+        error::mount_error_clean(image_path);
     }
 
     (entry, device_name)
