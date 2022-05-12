@@ -27,6 +27,7 @@ pub enum FileType {
 pub enum Token {
     Pos,
     Size,
+    CurrentPos,
 }
 
 impl ToString for Token {
@@ -34,6 +35,7 @@ impl ToString for Token {
         match self {
             Token::Pos => "position".to_string(),
             Token::Size => "size".to_string(),
+            Token::CurrentPos => "current position".to_string(),
         }
     }
 }
@@ -68,6 +70,11 @@ pub const NO_STATUS_ERROR: &str = "No status found";
 pub const CONVERT_ERROR: &str = "Could not convert {entry} to decimal";
 pub const START_NONZERO_ERROR: &str = "Disk map does not begin from 0";
 pub const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
+pub const EMPTY_MAP_ERROR: &str = "Map file is empty";
+pub const NO_CURRENT_POSITION_ERROR: &str = "Current position in status line is missing";
+pub const NO_CURRENT_STATUS_ERROR: &str = "Current status is missing from the status line";
+pub const UNKNOWN_CURRENT_STATUS_ERROR: &str = "Invalid status in status line";
+pub const UNKNOWN_CURRRENT_PHASE_ERROR: &str = "Invalid phase in status line";
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())

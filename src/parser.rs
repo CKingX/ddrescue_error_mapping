@@ -79,12 +79,13 @@ fn create_linear(contents: Number, device: &str, line: &Line) -> String {
 pub fn parse_map_string(filename: &OsString, contents: &str, device_name: &str) -> String {
     let mut output = String::new();
 
-    let file_line = contents
+    let mut file_line = contents
         .lines()
         .enumerate()
         .map(|s| (s.0, s.1.trim()))
-        .filter(|s| !s.1.is_empty() && !s.1.contains('#'))
-        .skip(1);
+        .filter(|s| !s.1.is_empty() && !s.1.contains('#'));
+
+    verify_status_line(&mut file_line, filename.to_string_lossy());
 
     let mut prev_entry = 0;
 
@@ -239,4 +240,68 @@ fn report_error(line: &Line, parse_start: usize, token: &str, message: &str) -> 
     );
     error::print_error(message);
     error::parse_error(false)
+}
+
+fn verify_status_line<'a, T>(lines: &mut T, filename: Cow<'a, str>)
+where
+    T: Iterator<Item = (usize, &'a str)>,
+{
+    let (line_number, line) = lines.next().unwrap_or_else(|| {
+        error::print_error(error::EMPTY_MAP_ERROR);
+        error::parse_error(false)
+    });
+
+    let mut contents = line.split_ascii_whitespace();
+
+    let line_content = Line {
+        filename,
+        line_num: line_number,
+        line,
+    };
+
+    let current_pos = contents
+        .next()
+        .unwrap_or_else(|| report_error(&line_content, 0, line, error::NO_CURRENT_POSITION_ERROR));
+
+    convert_to_num(current_pos, || {
+        report_error(
+            &line_content,
+            line.find(current_pos).unwrap(),
+            current_pos,
+            &error::convert_error_string(Token::CurrentPos),
+        )
+    });
+
+    let current_status = contents
+        .next()
+        .unwrap_or_else(|| report_error(&line_content, 0, line, error::NO_CURRENT_STATUS_ERROR))
+        .chars()
+        .next()
+        .unwrap();
+
+    match current_status {
+        '?' | '*' | '/' | '-' | 'F' | 'G' | '+' => (),
+        x => report_error(
+            &line_content,
+            line.rfind(x).unwrap(),
+            &x.to_string(),
+            error::UNKNOWN_CURRENT_STATUS_ERROR,
+        ),
+    }
+
+    let current_pass = contents.next();
+
+    match current_pass {
+        Some(x) => {
+            x.parse::<u8>().unwrap_or_else(|_| {
+                report_error(
+                    &line_content,
+                    line.rfind(x).unwrap(),
+                    x,
+                    error::UNKNOWN_CURRRENT_PHASE_ERROR,
+                )
+            });
+        }
+        None => (),
+    };
 }
