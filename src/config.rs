@@ -1,4 +1,5 @@
 use crate::error::{self, set_config_error};
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::os::unix::prelude::*;
@@ -72,8 +73,13 @@ impl Config {
     pub fn read_config() -> Config {
         let mut temp = std::env::temp_dir();
         temp.push(CONFIG_FOLDER);
-        std::fs::create_dir_all(&temp).unwrap_or_else(|_| error::set_config_error());
+        std::fs::create_dir_all(&temp).unwrap_or_else(|e| {
+            error!("Unable to create configuration {:?}", e);
+            error::set_config_error()
+        });
         temp.push("config.json");
+
+        info!("Configuration location: {:?}", temp);
 
         let file = File::options().read(true).mode(0o664).open(&temp);
 
@@ -81,6 +87,7 @@ impl Config {
             if let ErrorKind::NotFound = error.kind() {
                 Config(HashMap::new())
             } else {
+                error!("Configuration open error {:?}", error);
                 error::read_config_error();
             }
         } else {
@@ -88,13 +95,18 @@ impl Config {
             let file_size = file
                 .unwrap()
                 .read_to_string(&mut config_entries)
-                .unwrap_or_else(|_| set_config_error());
+                .unwrap_or_else(|e| {
+                    error!("Unable to convert configuration to file, {:?}", e);
+                    set_config_error()
+                });
 
             if file_size == 0 {
                 config_entries = "{}".to_string();
             }
-            let config: Config =
-                serde_json::from_str(&config_entries).unwrap_or_else(|_| set_config_error());
+            let config: Config = serde_json::from_str(&config_entries).unwrap_or_else(|e| {
+                error!("Unable to parse error {:?}", e);
+                set_config_error()
+            });
 
             config
         }
@@ -127,8 +139,12 @@ impl Config {
         let mut temp = std::env::temp_dir();
         temp.push(CONFIG_FOLDER);
         temp.push("config.json");
-        std::fs::write(temp, serde_json::to_string(self).unwrap().as_bytes())
-            .unwrap_or_else(|_| set_config_error());
+        std::fs::write(temp, serde_json::to_string(self).unwrap().as_bytes()).unwrap_or_else(|e| {
+            error!("Unable to write configuration {:?}", e);
+            set_config_error()
+        });
+
+        info!("Configuration file written");
     }
 
     pub fn remove_device(&mut self, entry: u32) {
@@ -139,6 +155,7 @@ impl Config {
 
     pub fn clear_devices(&mut self) {
         self.0.clear();
+        info!("All devices cleared");
     }
 }
 

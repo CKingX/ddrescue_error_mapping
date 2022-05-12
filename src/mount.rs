@@ -70,9 +70,15 @@ fn losetup_mount(image: &OsString, block_size: u32) -> String {
     let losetup_next_loop_device = Command::new("losetup")
         .args(["-f"])
         .output()
-        .unwrap_or_else(|_| error::mount_error());
+        .unwrap_or_else(|e| {
+            error!("Unable to run losetup to find nextloop: {:?}", e);
+            error::mount_error()
+        });
     let image_mount_path = String::from_utf8(losetup_next_loop_device.stdout)
-        .unwrap_or_else(|_| error::mount_error())
+        .unwrap_or_else(|e| {
+            error!("Unable to get next loop device from losetup: {:?}", e);
+            error::mount_error()
+        })
         .trim_matches('\n')
         .to_string();
 
@@ -102,6 +108,7 @@ fn losetup_mount(image: &OsString, block_size: u32) -> String {
         });
 
     if !image_mount_status.status.success() {
+        error!("Losetup reported an error");
         eprintln!("{}", String::from_utf8(image_mount_status.stderr).unwrap());
         error::mount_error();
     }
@@ -128,19 +135,33 @@ fn dm_mount(map: &OsString, image_path: &OsString) -> (u32, String) {
         .args(args)
         .stdin(process::Stdio::piped())
         .spawn()
-        .unwrap_or_else(|_| error::mount_error_clean(image_path));
+        .unwrap_or_else(|e| {
+            error!("Unable to run dmsetup: {:?}", e);
+            error::mount_error_clean(image_path)
+        });
     dm_mount_process
         .stdin
         .take()
-        .unwrap_or_else(|| error::mount_error_clean(image_path))
+        .unwrap_or_else(|| {
+            error!("Unable to take stdin of dmsetup");
+            error::mount_error_clean(image_path)
+        })
         .write_all(device_mapper.as_bytes())
-        .unwrap_or_else(|_| error::mount_error_clean(image_path));
+        .unwrap_or_else(|e| {
+            error!("Unable to write to stdin of dmsetup: {:?}", e);
+            error::mount_error_clean(image_path)
+        });
 
-    let status = dm_mount_process
-        .wait_with_output()
-        .unwrap_or_else(|_| error::mount_error_clean(image_path));
+    let status = dm_mount_process.wait_with_output().unwrap_or_else(|e| {
+        error!(
+            "Unable to get status of dmsetup after writing stdin: {:?}",
+            e
+        );
+        error::mount_error_clean(image_path)
+    });
 
     if !status.status.success() {
+        error!("Dmsetup reported an error");
         eprintln!("{}", String::from_utf8(status.stderr).unwrap());
         error::mount_error_clean(image_path);
     }
