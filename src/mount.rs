@@ -25,7 +25,7 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
 
     let image = absolute_image_path(image);
 
-    info!("Full path of image: {image}");
+    info!("Full path of image: {:?}", image);
 
     // mount the image
     let image_mount_path = losetup_mount(&image, block_size);
