@@ -218,10 +218,7 @@ fn report_error(line: &Line, parse_start: usize, token: &str, message: &str) -> 
 
     eprintln!(
         " {padding} {seperator} {}{}",
-        match parse_start {
-            0 => "".to_string(),
-            x => " ".repeat(x),
-        },
+        " ".repeat(parse_start),
         "^".repeat(token.len()).red().bold()
     );
     error::print_error(message);
