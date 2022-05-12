@@ -162,7 +162,23 @@ pub fn parse_map_string(filename: &OsString, contents: &str, device_name: &str) 
 
         // Check if sector is contiguous
         if pos != prev_entry {
-            error::contiguous_error();
+            if prev_entry == 0 {
+                report_error(
+                    &line,
+                    line.line.find(&pos_string).unwrap(),
+                    &pos_string,
+                    error::START_NONZERO_ERROR,
+                );
+            } else {
+                report_error(
+                    &line,
+                    line.line.find(&pos_string).unwrap(),
+                    &pos_string,
+                    &error::CONTIGUOUS_ERROR
+                        .replace("{pos}", &pos.to_string())
+                        .replace("{size}", &prev_entry.to_string()),
+                );
+            }
         } else {
             prev_entry = pos + size;
         }

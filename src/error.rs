@@ -47,7 +47,6 @@ impl FileType {
     }
 }
 
-pub const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
 pub const SET_CONFIG_ERROR: &str = "Unable to open or set configuration";
 pub const READ_CONFIG_ERROR: &str = "Unable to read configuration";
 pub const OOM_ERROR: &str = "Out of memory error!";
@@ -58,7 +57,8 @@ pub const FILE_NOT_FOUND_ERROR: &str = "Unable to find";
 pub const SECTOR_SIZE_ERROR: &str = "Sector size is not a multiple of 512";
 
 // Parser errors
-pub const CONTIGUOUS_ERROR: &str = "ddrescue map of disk is not contiguous or is overlapping";
+pub const CONTIGUOUS_ERROR: &str = "Position {pos} does not match size of previous line {size}\n\
+Disk map is not contiguous or is overlapping";
 pub const POSITION_SECTOR_ERROR: &str = "Position does not match sector size";
 pub const SIZE_SECTOR_ERROR: &str = "Size does not match sector size";
 pub const UNKNOWN_MAP_STATUS_ERROR: &str = "Unknown status character";
@@ -66,11 +66,8 @@ pub const NO_POSITION_ERROR: &str = "No position found";
 pub const NO_SIZE_ERROR: &str = "No size found";
 pub const NO_STATUS_ERROR: &str = "No status found";
 pub const CONVERT_ERROR: &str = "Could not convert {entry} to decimal";
-
-pub fn contiguous_error() -> ! {
-    print_error(CONTIGUOUS_ERROR);
-    process::exit(ExitCode::ParseError as i32);
-}
+pub const START_NONZERO_ERROR: &str = "Disk map does not begin from 0";
+pub const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())
