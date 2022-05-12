@@ -136,7 +136,7 @@ pub fn parse_map_string(filename: &OsString, contents: &str, device_name: &str) 
             let x = line.line.find(&size_string).unwrap() + size_string.len();
             x + line.line[x..].find(&size_string).unwrap()
         } else {
-            line.line.find(&pos_string).unwrap()
+            line.line.find(&size_string).unwrap()
         };
 
         let size = convert_to_num(&size_string, || {
