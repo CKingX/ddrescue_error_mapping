@@ -26,7 +26,12 @@ ddr-mount list
 ```
 
 ## Install
-ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only).
+ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only). There is also a generic Linux executable file that should run on most Linux distributions, provided `dmsetup` and `losetup` are installed. If you have rustup installed (see Build Guide), you can install by running
+```
+cargo install ddr-mount
+```
+
+Unless you build it yourself and move the bash autocomplete and manpage file manually (see Build Guide), or use the deb file, bash autocompletion and man files are not installed automatically.
 
 ## Upgrade instructions
 If previous version was installed using the deb package, first uninstall the older version
@@ -34,6 +39,10 @@ If previous version was installed using the deb package, first uninstall the old
 sudo apt remove ddr-mount
 ```
 Then install ddr-mount using deb file as usual
+
+If you used cargo to install, run `cargo install ddr-mount` again
+
+If you used the ddr-mount linux binary, just replace it with the newer version. You may need to run `chmod +x <path to ddr-mount>` again
 
 ## Build Guide
 We can use cargo to build ddr-mount. Currently tested with rustc version 1.60. To build, we first need to install rustup. Make sure to install build tools like build-essentials on Ubuntu. To begin, run this command below instead to install rustup:
@@ -47,10 +56,25 @@ cargo install --path ./ddrescue_error_mapping
 ```
 Now you can run by typing ddr-mount in terminal! Upgrading it is as simple as replacing cloning the repository again and running the cargo install command again.
 
+If you would like to just build the binary, you can run this for debug binary:
+```
+cargo build
+```
+and this for release binary:
+```
+cargo build --release
+```
+You should find output in ./target/{debug/release}/ddr-mount
+
+The bash-completion file should be found in ./target/{debug/release}/build/ddr-mount-{hash}/out/ddr-mount.bash (You may find multiple ddr-mount-{hash} folders. Sort by date modified, and then find by whichever folder has out folder inside). Copy the ddr-mount.bash file to /usr/share/bash-completion/completions/ and rename to ddr-mount to get tab complete in bash automatically.
+
+Man file should also be found in the same out folder as `ddr-mount.bash`. Move it to /usr/share/man/man1/ddr-mount.1
+
 ## Limitations
 * ddr-mount does not yet work under WSL
-* Tested on Ubuntu 20.04, and Ubuntu 18.04. Currently, dm-mount does not work under WSL
+* Tested on Ubuntu 20.04, and Ubuntu 18.04. Currently, ddr-mount does not work under WSL
 * Can only mount images with a sector size that is a multiple of 512 bytes
+* ddrescue on macOS will create a map file for a disk of 9223 PB as macOS does not report disk size. This will cause mount to fail. See [this](https://www.mail-archive.com/bug-ddrescue@gnu.org/msg02081.html) for more information and for potential solutions on working with ddrescue to create a functional map file.
 
 
 ## License

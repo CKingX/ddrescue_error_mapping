@@ -5,6 +5,11 @@ version = "1.1.0"
 edition = "2021"
 authors = ["CKingX"]
 description = "ddr-mount allows you to mount image files while passing bad sectors"
+homepage = "https://github.com/CKingX/ddrescue_error_mapping"
+repository = "https://github.com/CKingX/ddrescue_error_mapping"
+keywords = ["ddrescue", "image", "mount"]
+categories = ["command-line-utilities"]
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -21,6 +26,7 @@ clap-verbosity-flag = "1.0.0"
 clap_complete = "3.1.3"
 clap = {version = "3.1.10", features = ["derive"] }
 clap-verbosity-flag = "1.0.0"
+clap_mangen = "0.1.6"
 
 [profile.release]
 overflow-checks = true

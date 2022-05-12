@@ -99,6 +99,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap_mangen"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca2ff85c3fa1e7c1a4229f7b4221f769757c3982e2afd3e6d9381d59db2c7e61"
+dependencies = [
+ "clap",
+ "roff",
+]
+
+[[package]]
 name = "colored"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -116,6 +126,7 @@ dependencies = [
  "clap",
  "clap-verbosity-flag",
  "clap_complete",
+ "clap_mangen",
  "colored",
  "env_logger",
  "log",
@@ -270,6 +281,12 @@ name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
+
+[[package]]
+name = "roff"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b833d8d034ea094b1ea68aa6d5c740e0d04bad9d16568d08ba6f76823a114316"
 
 [[package]]
 name = "ryu"
