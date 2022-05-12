@@ -7,19 +7,36 @@ use std::{
 use crate::config::{self, DM_LOCATION};
 use crate::error::{self, FileType};
 use crate::parser::parse_map;
+use log::{error, info};
 use std::io::Error as IOError;
 use std::path::Path;
 
 /// Mounts the image
 pub fn mount(image: OsString, map: OsString, block_size: u32) {
+    info!(
+        "mount image: {}, map: {}, block size: {block_size}",
+        image.to_string_lossy(),
+        map.to_string_lossy()
+    );
+    info!("image additional: {:?}", image);
+    info!("map additional: {:?}", map);
+
     if block_size % 512 != 0 {
+        error!("Sector size not a multiple of 512, {}", block_size % 512);
         error::sector_error();
     }
 
     let image = absolute_image_path(image);
 
+    info!(
+        "Full path of image: {} additional: {:?}",
+        image.to_string_lossy(),
+        image
+    );
+
     // mount the image
     let image_mount_path = losetup_mount(&image, block_size);
+    info!("Image mounted at {image_mount_path}");
     let image_path = OsString::from(&image_mount_path);
 
     // mount the device mapper over image mount, creating error I/O range using map file
@@ -28,11 +45,8 @@ pub fn mount(image: OsString, map: OsString, block_size: u32) {
     let mut config = config::Config::read_config();
     config.write_device(image.clone(), entry, image_mount_path, device_name.clone());
 
-    if let Some(x) = image.to_str() {
-        println!("{x} is mounted at {DM_LOCATION}{device_name}");
-    } else {
-        println!("Image is mounted at {DM_LOCATION}{device_name}");
-    }
+    let x = image.to_string_lossy();
+    println!("{x} is mounted at {DM_LOCATION}{device_name}");
 }
 
 /// Gets the absolute path of the image
@@ -69,23 +83,35 @@ fn losetup_mount(image: &OsString, block_size: u32) -> String {
         .trim_matches('\n')
         .to_string();
 
+    let args = [
+        &OsString::from(&image_mount_path),
+        image,
+        &OsString::from("-r"),
+        &OsString::from("-b"),
+        &OsString::from(block_size.to_string()),
+    ];
+
+    info!(
+        "losetup{}",
+        args.iter().fold("".to_string(), |carry, item| format!(
+            "{carry} {}",
+            item.to_string_lossy()
+        ))
+    );
+
     let image_mount_status = Command::new("losetup")
-        .args([
-            &OsString::from(&image_mount_path),
-            image,
-            &OsString::from("-r"),
-            &OsString::from("-b"),
-            &OsString::from(block_size.to_string()),
-        ])
+        .args(args)
         .stdin(process::Stdio::null())
         .output()
-        .unwrap_or_else(|_| error::mount_error());
+        .unwrap_or_else(|e| {
+            error!("losetup run error {:?}", e);
+            error::mount_error()
+        });
 
     if !image_mount_status.status.success() {
         eprintln!("{}", String::from_utf8(image_mount_status.stderr).unwrap());
         error::mount_error();
     }
-
     image_mount_path
 }
 
@@ -98,8 +124,15 @@ fn dm_mount(map: &OsString, image_path: &OsString) -> (u32, String) {
     let device_name = format!("{}{}", config::DEVICE_NAME, entry);
     let device_mapper = &parse_map(map, image_path);
 
+    let args = ["create", &device_name];
+    info!(
+        "dmsetup{}",
+        args.iter()
+            .fold("".to_string(), |carry, item| format!("{carry} {item}"))
+    );
+
     let mut dm_mount_process = Command::new("dmsetup")
-        .args(["create", &device_name])
+        .args(args)
         .stdin(process::Stdio::piped())
         .spawn()
         .unwrap_or_else(|_| error::mount_error_clean(image_path));
@@ -110,9 +143,13 @@ fn dm_mount(map: &OsString, image_path: &OsString) -> (u32, String) {
         .write_all(device_mapper.as_bytes())
         .unwrap_or_else(|_| error::mount_error_clean(image_path));
 
-    dm_mount_process
+    let status = dm_mount_process
         .wait_with_output()
         .unwrap_or_else(|_| error::mount_error_clean(image_path));
+
+    if !status.status.success() {
+        eprintln!("{}", String::from_utf8(status.stderr).unwrap());
+    }
 
     (entry, device_name)
 }

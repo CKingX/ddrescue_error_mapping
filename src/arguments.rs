@@ -5,7 +5,9 @@ use std::ffi::OsString;
 #[clap(author, version, about)]
 pub struct Cli {
     #[clap(subcommand)]
-    command: Commands,
+    pub command: Commands,
+    #[clap(flatten)]
+    pub verbose: clap_verbosity_flag::Verbosity,
 }
 
 #[derive(Subcommand)]
@@ -36,8 +38,8 @@ pub enum Commands {
     List,
 }
 
-pub fn handle_arguments() -> Commands {
-    Cli::parse().command
+pub fn handle_arguments() -> Cli {
+    Cli::parse()
 }
 
 #[allow(deprecated)]

@@ -1,9 +1,8 @@
 use crate::unmount::*;
-use atty::{self, Stream};
+use colored::Colorize;
+use log::error;
 use std::fmt::Display;
-use std::io::Write;
 use std::{env, io::ErrorKind, process};
-use termcolor::{self, Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 /// Represents all the exit codes of the program with 0 being success and the rest being errors
 #[repr(i32)]
@@ -25,6 +24,20 @@ pub enum FileType {
     ImageFile,
 }
 
+pub enum Token {
+    Pos,
+    Size,
+}
+
+impl ToString for Token {
+    fn to_string(&self) -> String {
+        match self {
+            Token::Pos => "position".to_string(),
+            Token::Size => "size".to_string(),
+        }
+    }
+}
+
 impl FileType {
     pub fn to_string(&self) -> &str {
         match self {
@@ -34,7 +47,6 @@ impl FileType {
     }
 }
 
-pub const CONVERT_ERROR: &str = "Could not convert ddrescue entry to decimal";
 pub const PARSE_ERROR: &str = "Unable to parse ddrescue map file";
 pub const SET_CONFIG_ERROR: &str = "Unable to open or set configuration";
 pub const READ_CONFIG_ERROR: &str = "Unable to read configuration";
@@ -44,7 +56,16 @@ pub const NO_DEVICE_UNMOUNT_ERROR: &str = "Unmount error: Unable to find device"
 pub const UNMOUNT_ERROR: &str = "Unable to unmount device";
 pub const FILE_NOT_FOUND_ERROR: &str = "Unable to find";
 pub const SECTOR_SIZE_ERROR: &str = "Sector size is not a multiple of 512";
+
+// Parser errors
 pub const CONTIGUOUS_ERROR: &str = "ddrescue map of disk is not contiguous or is overlapping";
+pub const POSITION_SECTOR_ERROR: &str = "Position does not match sector size";
+pub const SIZE_SECTOR_ERROR: &str = "Size does not match sector size";
+pub const UNKNOWN_MAP_STATUS_ERROR: &str = "Unknown status character";
+pub const NO_POSITION_ERROR: &str = "No position found";
+pub const NO_SIZE_ERROR: &str = "No size found";
+pub const NO_STATUS_ERROR: &str = "No status found";
+pub const CONVERT_ERROR: &str = "Could not convert {entry} to decimal";
 
 pub fn contiguous_error() -> ! {
     print_error(CONTIGUOUS_ERROR);
@@ -55,13 +76,14 @@ pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())
 }
 
-pub fn convert_error() -> ! {
-    print_error(CONVERT_ERROR);
-    process::exit(ExitCode::ParseError as i32);
+pub fn convert_error_string(token: Token) -> String {
+    CONVERT_ERROR.replace("{entry}", &token.to_string())
 }
 
-pub fn parse_error() -> ! {
-    print_error(PARSE_ERROR);
+pub fn parse_error(print: bool) -> ! {
+    if print {
+        print_error(PARSE_ERROR)
+    };
     process::exit(ExitCode::ParseError as i32);
 }
 
@@ -70,14 +92,9 @@ pub fn sector_error() -> ! {
     process::exit(ExitCode::SectorSizeError as i32);
 }
 
-fn print_error(error: impl Display) {
-    if atty::is(Stream::Stderr) {
-        let mut stderr = StandardStream::stderr(ColorChoice::Always);
-        let _ = stderr.set_color(ColorSpec::new().set_fg(Some(Color::Red)));
-        let _ = writeln!(&mut stderr, "{}", error);
-    } else {
-        eprintln!("{}", error);
-    }
+pub fn print_error(error: impl Display) {
+    let error_string = format!("{error}");
+    eprintln!("{}", error_string.red().bold());
 }
 
 pub fn set_config_error() -> ! {
@@ -101,6 +118,7 @@ pub fn check_root() {
     let env_vars = env::vars().find(|n| n.0 == "USER");
     if let Some((_, user)) = env_vars {
         if user != "root" {
+            error!("User running as {user}, rather than root");
             let arguments = env::args().reduce(|a, b| format!("{a} {b}")).unwrap();
             print_error(format!("You must run as root.\nTry sudo {arguments}"));
             process::exit(ExitCode::NonRoot as i32);

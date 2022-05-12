@@ -12,7 +12,11 @@ use mount::*;
 fn main() {
     let args = handle_arguments();
 
-    match args {
+    env_logger::Builder::new()
+        .filter_level(args.verbose.log_level_filter())
+        .init();
+
+    match args.command {
         Commands::Mount {
             image,
             map,
