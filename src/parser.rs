@@ -110,14 +110,18 @@ pub fn parse_map_string(filename: &OsString, contents: &str, device_name: &str) 
                 report_error(&line, 0, line.line, error::NO_SIZE_ERROR);
             })
             .to_string();
-        let status = map_line
-            .next()
-            .unwrap_or_else(|| {
-                report_error(&line, 0, line.line, error::NO_STATUS_ERROR);
-            })
-            .chars()
-            .next()
-            .unwrap();
+        let status = map_line.next().unwrap_or_else(|| {
+            report_error(&line, 0, line.line, error::NO_STATUS_ERROR);
+        });
+
+        let status = status.parse::<char>().unwrap_or_else(|_| {
+            report_error(
+                &line,
+                line.line.rfind(status).unwrap(),
+                status,
+                error::UNKNOWN_MAP_STATUS_ERROR,
+            )
+        });
 
         let pos = convert_to_num(&pos_string, || {
             report_error(
@@ -127,10 +131,18 @@ pub fn parse_map_string(filename: &OsString, contents: &str, device_name: &str) 
                 &error::convert_error_string(Token::Pos),
             )
         });
+
+        let location = if size_string == pos_string {
+            let x = line.line.find(&size_string).unwrap() + size_string.len();
+            x + line.line[x..].find(&size_string).unwrap()
+        } else {
+            line.line.find(&pos_string).unwrap()
+        };
+
         let size = convert_to_num(&size_string, || {
             report_error(
                 &line,
-                line.line.rfind(&size_string).unwrap(),
+                location,
                 &size_string,
                 &error::convert_error_string(Token::Size),
             )
@@ -274,10 +286,23 @@ where
 
     let current_status = contents
         .next()
-        .unwrap_or_else(|| report_error(&line_content, 0, line, error::NO_CURRENT_STATUS_ERROR))
-        .chars()
-        .next()
-        .unwrap();
+        .unwrap_or_else(|| report_error(&line_content, 0, line, error::NO_CURRENT_STATUS_ERROR));
+
+    let location = if current_status == current_pos {
+        let x = line.find(current_status).unwrap() + current_status.len();
+        x + line[x..].find(current_status).unwrap()
+    } else {
+        line.find(current_status).unwrap()
+    };
+
+    let current_status = current_status.parse::<char>().unwrap_or_else(|_| {
+        report_error(
+            &line_content,
+            location,
+            current_status,
+            error::UNKNOWN_CURRENT_STATUS_ERROR,
+        )
+    });
 
     match current_status {
         '?' | '*' | '/' | '-' | 'F' | 'G' | '+' => (),
