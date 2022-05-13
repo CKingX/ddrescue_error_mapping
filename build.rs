@@ -11,6 +11,8 @@ fn main() -> Result<(), std::io::Error> {
     };
 
     let mut cmd = _handle_command();
+    #[allow(deprecated)]
+    cmd._build_all();
     generate_to(Bash, &mut cmd, "ddr-mount", outdir.clone())?;
     let man = Man::new(cmd);
     let mut buffer: Vec<u8> = Default::default();

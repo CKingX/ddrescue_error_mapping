@@ -26,12 +26,12 @@ ddr-mount list
 ```
 
 ## Install
-ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only). There is also a generic Linux executable file for x64 systems that should run on most Linux distributions, provided `dmsetup` and `losetup` are installed. If you have rustup installed (see Build Guide), you can install by running
+ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only). There is also a generic Linux executable file that should run on most Linux distributions, provided `dmsetup` and `losetup` are installed. If you have rustup installed (see Build Guide), you can install by running
 ```
 cargo install ddr-mount
 ```
 
-Unless you build it yourself and move the bash autocomplete and manpage file manually (see Build Guide), or use the deb file, bash autocompletion and man files are not installed automatically.
+Unless you build it yourself and move the bash autocomplete and manpage file manually (see Build Guide), or use the deb file, bash autocompletion and man files are not installed. However, you can either generate the man files and bash complete by following the Build Guide, or manually install them by downloading them from releases and following the steps from Build Guide on installing them.
 
 ## Upgrade instructions
 If previous version was installed using the deb package, first uninstall the older version
