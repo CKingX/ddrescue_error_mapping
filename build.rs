@@ -1,4 +1,4 @@
-use clap_complete::{generate_to, shells::Bash};
+use clap_complete::{generate_to, shells::Bash, shells::Fish};
 use clap_mangen::Man;
 use std::env;
 
@@ -10,14 +10,32 @@ fn main() -> Result<(), std::io::Error> {
         Some(outdir) => outdir,
     };
 
+    let name = "ddr-mount";
+
     let mut cmd = _handle_command();
     #[allow(deprecated)]
     cmd._build_all();
-    generate_to(Bash, &mut cmd, "ddr-mount", outdir.clone())?;
-    let man = Man::new(cmd);
+    generate_to(Bash, &mut cmd, name, outdir.clone())?;
+    generate_to(Fish, &mut cmd, name, outdir.clone())?;
+    let man = Man::new(cmd.clone());
     let mut buffer: Vec<u8> = Default::default();
     man.render(&mut buffer)?;
-    std::fs::write(std::path::PathBuf::from(outdir).join("ddr-mount.1"), buffer)?;
+    std::fs::write(
+        std::path::PathBuf::from(&outdir).join("ddr-mount.1"),
+        buffer,
+    )?;
+
+    for subcommand in cmd.get_subcommands() {
+        let subcommand_name = subcommand.get_name();
+        let subcommand_name = format!("{name}-{subcommand_name}");
+        let mut buffer: Vec<u8> = Default::default();
+        let man = Man::new(subcommand.clone().name(&subcommand_name));
+        man.render(&mut buffer)?;
+        std::fs::write(
+            std::path::PathBuf::from(&outdir).join(&subcommand_name),
+            buffer,
+        )?;
+    }
 
     Ok(())
 }
