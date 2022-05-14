@@ -124,26 +124,27 @@ pub fn parse_map_string(filename: &OsString, contents: &str, device_name: &str) 
             )
         });
 
+        let pos_location = get_next(0, line.line, &pos_string);
+        let size_location = get_next(pos_location + pos_string.len(), line.line, &size_string);
+        let status_location = get_next(
+            size_location + size_string.len(),
+            line.line,
+            &status.to_string(),
+        );
+
         let pos = convert_to_num(&pos_string, || {
             report_error(
                 &line,
-                line.line.find(&pos_string).unwrap(),
+                pos_location,
                 &pos_string,
                 &error::convert_error_string(Token::Pos),
             )
         });
 
-        let location = if size_string == pos_string {
-            let x = line.line.find(&size_string).unwrap() + size_string.len();
-            x + line.line[x..].find(&size_string).unwrap()
-        } else {
-            line.line.find(&size_string).unwrap()
-        };
-
         let size = convert_to_num(&size_string, || {
             report_error(
                 &line,
-                location,
+                size_location,
                 &size_string,
                 &error::convert_error_string(Token::Size),
             )
@@ -165,12 +166,7 @@ pub fn parse_map_string(filename: &OsString, contents: &str, device_name: &str) 
             }
             x => {
                 let x = &x.to_string();
-                report_error(
-                    &line,
-                    line.line.rfind(x).unwrap(),
-                    x,
-                    error::UNKNOWN_MAP_STATUS_ERROR,
-                );
+                report_error(&line, status_location, x, error::UNKNOWN_MAP_STATUS_ERROR);
             }
         }
 
@@ -278,10 +274,12 @@ where
         .next()
         .unwrap_or_else(|| report_error(&line_content, 0, line, error::NO_CURRENT_POSITION_ERROR));
 
+    let current_pos_location = get_next(0, line, current_pos);
+
     convert_to_num(current_pos, || {
         report_error(
             &line_content,
-            line.find(current_pos).unwrap(),
+            current_pos_location,
             current_pos,
             &error::convert_error_string(Token::CurrentPos),
         )
@@ -291,27 +289,32 @@ where
         .next()
         .unwrap_or_else(|| report_error(&line_content, 0, line, error::NO_CURRENT_STATUS_ERROR));
 
-    let location = if current_status == current_pos {
-        let x = line.find(current_status).unwrap() + current_status.len();
-        x + line[x..].find(current_status).unwrap()
-    } else {
-        line.find(current_status).unwrap()
-    };
+    let current_status_location = get_next(
+        current_pos_location + current_pos.len(),
+        line,
+        current_status,
+    );
 
     let current_status = current_status.parse::<char>().unwrap_or_else(|_| {
         report_error(
             &line_content,
-            location,
+            current_status_location,
             current_status,
             error::UNKNOWN_CURRENT_STATUS_ERROR,
         )
     });
 
+    let current_status_location = get_next(
+        current_pos_location + current_pos.len(),
+        line,
+        &current_status.to_string(),
+    );
+
     match current_status {
         '?' | '*' | '/' | '-' | 'F' | 'G' | '+' => (),
         x => report_error(
             &line_content,
-            line.rfind(x).unwrap(),
+            current_status_location,
             &x.to_string(),
             error::UNKNOWN_CURRENT_STATUS_ERROR,
         ),
@@ -321,10 +324,11 @@ where
 
     match current_pass {
         Some(x) => {
+            let x_location = get_next(current_status_location + 1, line, x);
             x.parse::<u8>().unwrap_or_else(|_| {
                 report_error(
                     &line_content,
-                    line.rfind(x).unwrap(),
+                    x_location,
                     x,
                     error::UNKNOWN_CURRRENT_PHASE_ERROR,
                 )
@@ -332,4 +336,8 @@ where
         }
         None => (),
     };
+}
+
+fn get_next(prev: usize, line: &str, next: &str) -> usize {
+    prev + line[prev..].find(next).unwrap()
 }
