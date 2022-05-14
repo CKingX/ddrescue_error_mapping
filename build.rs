@@ -32,7 +32,7 @@ fn main() -> Result<(), std::io::Error> {
         let man = Man::new(subcommand.clone().name(&subcommand_name));
         man.render(&mut buffer)?;
         std::fs::write(
-            std::path::PathBuf::from(&outdir).join(&subcommand_name),
+            std::path::PathBuf::from(&outdir).join(format!("{}{}", &subcommand_name, ".1")),
             buffer,
         )?;
     }
