@@ -31,7 +31,7 @@ ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescu
 cargo install ddr-mount
 ```
 
-Unless you build it yourself and move the bash autocomplete and manpage file manually (see Build Guide), or use the deb file, bash autocompletion and man files are not installed. However, you can either generate the man files and bash complete by following the Build Guide, or manually install them by downloading them from releases and following the steps from Build Guide on installing them.
+Unless you build it yourself and move the bash and fish autocomplete and man page file manually (see Build Guide), or use the deb file, autocompletion and man files are not installed. However, you can either generate the man files and compleetion files by following the Build Guide, or manually install them by downloading them from releases and following the steps from Build Guide on installing them.
 
 ## Upgrade instructions
 If previous version was installed using the deb package, first uninstall the older version
@@ -66,9 +66,9 @@ cargo build --release
 ```
 You should find output in ./target/{debug/release}/ddr-mount
 
-The bash-completion file should be found in ./target/{debug/release}/build/ddr-mount-{hash}/out/ddr-mount.bash (You may find multiple ddr-mount-{hash} folders. Sort by date modified, and then find by whichever folder has out folder inside). Copy the ddr-mount.bash file to /usr/share/bash-completion/completions/ and rename to ddr-mount to get tab complete in bash automatically.
+The bash-completion files should be found in ./target/{debug/release}/build/ddr-mount-{hash}/out/ddr-mount.bash (You may find multiple ddr-mount-{hash} folders. Sort by date modified, and then find by whichever folder has out folder inside). Copy the ddr-mount.bash file to /usr/share/bash-completion/completions/ and rename to ddr-mount to get tab complete in bash automatically. Fish completion files are also found and are called ddr-mount.fish.
 
-Man file should also be found in the same out folder as `ddr-mount.bash`. Move it to /usr/share/man/man1/ddr-mount.1
+Man files should also be found in the same out folder as `ddr-mount.bash`. Move it to /usr/share/man/man1/ddr-mount={subcommands}.1
 
 ## Limitations
 * ddr-mount does not yet work under WSL
