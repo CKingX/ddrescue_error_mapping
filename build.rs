@@ -1,6 +1,6 @@
 use clap_complete::{generate_to, shells::Bash};
-use std::env;
 use clap_mangen::Man;
+use std::env;
 
 include!("src/arguments.rs");
 

@@ -1,6 +1,7 @@
 use crate::error::{self, Token};
 use colored::Colorize;
 use std::{borrow::Cow, ffi::OsString, fmt::Write, fs};
+use unicode_width::UnicodeWidthStr;
 
 struct Number<'a> {
     pos: (u128, &'a str),
@@ -248,7 +249,9 @@ fn report_error(line: &Line, parse_start: usize, token: &str, message: &str) -> 
     eprintln!(
         " {padding} {seperator} {}{}",
         " ".repeat(parse_start),
-        "^".repeat(token.len()).red().bold()
+        // I considered checking for unicode whitespace to ignore in ^, but I want to consider that an error
+        // as ddrescue only considers ASCII whitespace valid
+        "^".repeat(UnicodeWidthStr::width(token)).red().bold()
     );
     error::print_error(message);
     error::parse_error(false)
