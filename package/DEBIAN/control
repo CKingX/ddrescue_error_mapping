@@ -1,9 +1,9 @@
 Package: ddr-mount
-Version: 1.1.2
+Version: 1.1.3
 Architecture: amd64
 Depends: mount (>= 2.31), dmsetup (>= 2:1.02)
 Recommends: bash
-Replaces: ddr-mount, dm-mount
+Replaces: ddr-mount
 Maintainer: CKingX <CKingX/https://github.com/CKingX/ddrescue_error_mapping>
 Description: ddr-mount allows you to mount image files while passing bad sectors
  ddr-mount allows you to mount and unmount image files while giving I/O errors to any bad sectors and unread areas according to ddrescue map file.

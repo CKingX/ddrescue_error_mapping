@@ -1,7 +1,7 @@
 use crate::error::{self, set_config_error};
+use indexmap::IndexMap;
 use log::{error, info};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::os::unix::prelude::*;
 use std::{
     ffi::OsString,
@@ -36,7 +36,7 @@ impl Device {
 }
 
 pub struct DeviceIterator<'a> {
-    iterator: std::collections::hash_map::IterMut<'a, u32, ConfigEntry>,
+    iterator: indexmap::map::IterMut<'a, u32, ConfigEntry>,
 }
 
 impl Iterator for DeviceIterator<'_> {
@@ -67,7 +67,7 @@ pub struct ConfigEntry {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Config(HashMap<u32, ConfigEntry>);
+pub struct Config(#[serde(with = "indexmap::serde_seq")] IndexMap<u32, ConfigEntry>);
 
 impl Config {
     pub fn read_config() -> Config {
@@ -85,7 +85,7 @@ impl Config {
 
         if let Err(error) = file {
             if let ErrorKind::NotFound = error.kind() {
-                Config(HashMap::new())
+                Config(IndexMap::new())
             } else {
                 error!("Configuration open error {:?}", error);
                 error::read_config_error();
@@ -161,6 +161,7 @@ impl Config {
 
 impl Drop for Config {
     fn drop(&mut self) {
+        self.0.sort_keys();
         self.write_config();
     }
 }
@@ -197,7 +198,7 @@ pub fn list_devices() {
 pub fn get_next_devices() -> u32 {
     let config = &Config::read_config().0;
     let mut next_device = 0;
-    for num in 0..=u32::MAX {
+    for num in 1..=u32::MAX {
         if config.get(&num).is_some() {
             continue;
         }

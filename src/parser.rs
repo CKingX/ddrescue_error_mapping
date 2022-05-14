@@ -238,7 +238,7 @@ fn report_error(line: &Line, parse_start: usize, token: &str, message: &str) -> 
 
     let padding = " ".repeat(line_num.to_string().len());
 
-    eprintln!("{padding}{} {filename}", "-->".blue().bold());
+    eprintln!("{padding} {} {filename}", "-->".blue().bold());
     eprintln!(" {padding} {seperator}");
     eprintln!(" {} {seperator} {line}", line_num.to_string().blue().bold());
 

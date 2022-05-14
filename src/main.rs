@@ -10,6 +10,7 @@ use config::list_devices;
 use mount::*;
 
 use log::info;
+use update_informer::{registry, Check};
 
 fn main() {
     let args = handle_arguments();
@@ -18,7 +19,15 @@ fn main() {
         .filter_level(args.verbose.log_level_filter())
         .init();
 
-    info!("ddr-mount {}", env!("CARGO_PKG_VERSION"));
+    let version = env!("CARGO_PKG_VERSION");
+    let name = env!("CARGO_PKG_NAME");
+
+    info!("ddr-mount v{}", version);
+
+    let informer = update_informer::new(registry::Crates, name, version);
+    if let Ok(Some(version)) = informer.check_version() {
+        println!("New version is available: {}", version);
+    }
 
     match args.command {
         Commands::Mount {
