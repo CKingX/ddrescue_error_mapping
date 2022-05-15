@@ -26,7 +26,7 @@ ddr-mount list
 ```
 
 ## Install
-ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only). There is also a generic Linux executable file that should run on most Linux distributions, provided `dmsetup` and `losetup` are installed. If you have rustup installed (see Build Guide), you can install by running
+ddr-mount .deb file is available at [Releases](https://github.com/CKingX/ddrescue_error_mapping/releases) page for Ubuntu binaries (x64 architecture only). There is also a generic Linux executable file for 64-bit Intel systems that should run on most Linux distributions, provided `dmsetup` and `losetup` are installed. If you have rustup installed (see Build Guide), you can install by running
 ```
 cargo install ddr-mount
 ```
