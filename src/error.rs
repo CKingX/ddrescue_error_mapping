@@ -118,15 +118,13 @@ pub fn read_config_error() -> ! {
     process::exit(ExitCode::ConfigError as i32);
 }
 
-pub fn check_root() {
+pub fn root_error() {
     let env_vars = env::vars().find(|n| n.0 == "USER");
     if let Some((_, user)) = env_vars {
-        if user != "root" {
-            error!("User running as {user}, rather than root");
-            let arguments = env::args().reduce(|a, b| format!("{a} {b}")).unwrap();
-            print_error(format!("You must run as root.\nTry sudo {arguments}"));
-            process::exit(ExitCode::NonRoot as i32);
-        }
+        error!("User running as {user}, rather than root");
+        let arguments = env::args().reduce(|a, b| format!("{a} {b}")).unwrap();
+        print_error(format!("You must run as root.\nTry sudo {arguments}"));
+        process::exit(ExitCode::NonRoot as i32);
     }
 }
 

@@ -10,6 +10,7 @@ use config::list_devices;
 use mount::*;
 
 use log::info;
+use sudo::escalate_if_needed;
 use update_informer::{registry, Check};
 
 fn main() {
@@ -35,19 +36,26 @@ fn main() {
             map,
             block_size,
         } => {
-            error::check_root();
+            ensure_root();
             mount(image, map, block_size);
         }
         Commands::Unmount { device } => {
-            error::check_root();
+            ensure_root();
             unmount::unmount(device)
         }
         Commands::UnmountAll => {
-            error::check_root();
+            ensure_root();
             unmount::unmount_all();
         }
         Commands::List => {
             list_devices();
         }
     }
+}
+
+fn ensure_root() {
+    match escalate_if_needed() {
+        Ok(_) => (),
+        Err(_) => error::root_error(),
+    };
 }
