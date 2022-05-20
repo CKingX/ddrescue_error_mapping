@@ -75,6 +75,8 @@ pub const NO_CURRENT_POSITION_ERROR: &str = "Current position in status line is 
 pub const NO_CURRENT_STATUS_ERROR: &str = "Current status is missing from the status line";
 pub const UNKNOWN_CURRENT_STATUS_ERROR: &str = "Invalid status in status line";
 pub const UNKNOWN_CURRRENT_PHASE_ERROR: &str = "Invalid phase in status line";
+pub const CURRENT_PHASE_LESS_THAN_ONE_ERROR: &str =
+    "Invalid phase in status line: phase must be 1 or greater";
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())

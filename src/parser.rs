@@ -325,7 +325,7 @@ where
     match current_pass {
         Some(x) => {
             let x_location = get_next(current_status_location + 1, line, x);
-            x.parse::<u8>().unwrap_or_else(|_| {
+            let current_status = x.parse::<u8>().unwrap_or_else(|_| {
                 report_error(
                     &line_content,
                     x_location,
@@ -333,6 +333,14 @@ where
                     error::UNKNOWN_CURRRENT_PHASE_ERROR,
                 )
             });
+            if current_status < 1 {
+                report_error(
+                    &line_content,
+                    x_location,
+                    x,
+                    error::CURRENT_PHASE_LESS_THAN_ONE_ERROR,
+                );
+            }
         }
         None => (),
     };
