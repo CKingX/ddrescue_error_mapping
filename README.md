@@ -34,7 +34,7 @@ cargo install ddr-mount
 Unless you build it yourself and move the bash and fish autocomplete and man page file manually (see Build Guide), or use the deb file, autocompletion and man files are not installed. However, you can either generate the man files and compleetion files by following the Build Guide, or manually install them by downloading them from releases and following the steps from Build Guide on installing them.
 
 ## Upgrade instructions
-Before upgrade, make sure to unmount all images.
+Before upgrading, make sure to unmount all images.
 
 If previous version was installed using the deb package, first uninstall the older version
 ```
