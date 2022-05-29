@@ -70,7 +70,7 @@ You should find output in ./target/{debug/release}/ddr-mount
 
 The bash-completion files should be found in ./target/{debug/release}/build/ddr-mount-{hash}/out/ddr-mount.bash (You may find multiple ddr-mount-{hash} folders. Sort by date modified, and then find by whichever folder has out folder inside). Copy the ddr-mount.bash file to /usr/share/bash-completion/completions/ and rename to ddr-mount to get tab complete in bash automatically. Fish completion files are also found and are called ddr-mount.fish.
 
-Man files should also be found in the same out folder as `ddr-mount.bash`. Move it to /usr/share/man/man1/ddr-mount={subcommands}.1
+Man files should also be found in the same out folder as `ddr-mount.bash`. Move it to /usr/share/man/man1/ddr-mount-{subcommands}.1
 
 ## Limitations
 * ddr-mount does not yet work under WSL
