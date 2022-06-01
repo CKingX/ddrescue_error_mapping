@@ -13,6 +13,25 @@ use log::info;
 use sudo::escalate_if_needed;
 use update_informer::{registry, Check};
 
+struct UnknownWSLStatus;
+
+enum WSLStatus {
+    RunningUnderWSL,
+    RunningUnderLinux,
+}
+
+impl From<std::io::Error> for UnknownWSLStatus {
+    fn from(_: std::io::Error) -> Self {
+        UnknownWSLStatus
+    }
+}
+
+impl From<std::string::FromUtf8Error> for UnknownWSLStatus {
+    fn from(_: std::string::FromUtf8Error) -> Self {
+        UnknownWSLStatus
+    }
+}
+
 fn main() {
     let args = handle_arguments();
 
@@ -28,6 +47,11 @@ fn main() {
     let informer = update_informer::new(registry::Crates, name, version);
     if let Ok(Some(version)) = informer.check_version() {
         println!("New version is available: {version}");
+    }
+
+    match wsl_check() {
+        Ok(WSLStatus::RunningUnderWSL) => error::wsl_error(),
+        Ok(_) | Err(_) => (),
     }
 
     match args.command {
@@ -58,4 +82,22 @@ fn ensure_root() {
         Ok(_) => (),
         Err(_) => error::root_error(),
     };
+}
+
+fn wsl_check() -> Result<WSLStatus, UnknownWSLStatus>{
+    let output = std::process::Command::new("uname")
+                .arg("-r")
+                .output()?;
+
+    if output.status.success() {
+        let mut wsl_status = String::from_utf8(output.stdout)?;
+        wsl_status.make_ascii_lowercase();
+        if wsl_status.contains("microsoft") {
+            Ok(WSLStatus::RunningUnderWSL)
+        } else {
+            Ok(WSLStatus::RunningUnderLinux)
+        }
+    } else {
+        return Err(UnknownWSLStatus);
+    }
 }

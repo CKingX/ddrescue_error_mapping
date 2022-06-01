@@ -57,6 +57,7 @@ pub const NO_DEVICE_UNMOUNT_ERROR: &str = "Unmount error: Unable to find device"
 pub const UNMOUNT_ERROR: &str = "Unable to unmount device";
 pub const FILE_NOT_FOUND_ERROR: &str = "Unable to find";
 pub const SECTOR_SIZE_ERROR: &str = "Sector size is not a multiple of 512";
+pub const WSL_ERROR: &str = "ddr-mount does not support running under WSL";
 
 // Parser errors
 pub const CONTIGUOUS_ERROR: &str = "Position {pos} does not match size of previous line {size}\n\
@@ -80,6 +81,11 @@ pub const CURRENT_PHASE_LESS_THAN_ONE_ERROR: &str =
 
 pub fn file_not_found(filetype: FileType) -> String {
     format!("{FILE_NOT_FOUND_ERROR} {}", filetype.to_string())
+}
+
+pub fn wsl_error() -> ! {
+    print_error(WSL_ERROR);
+    std::process::exit(ExitCode::UnknownError as i32);
 }
 
 pub fn convert_error_string(token: Token) -> String {
