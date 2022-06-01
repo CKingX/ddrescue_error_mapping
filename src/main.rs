@@ -92,7 +92,7 @@ fn wsl_check() -> Result<WSLStatus, UnknownWSLStatus>{
     if output.status.success() {
         let mut wsl_status = String::from_utf8(output.stdout)?;
         wsl_status.make_ascii_lowercase();
-        if wsl_status.contains("microsoft") {
+        if wsl_status.contains("microsoft") || wsl_status.contains("wsl") {
             Ok(WSLStatus::RunningUnderWSL)
         } else {
             Ok(WSLStatus::RunningUnderLinux)
