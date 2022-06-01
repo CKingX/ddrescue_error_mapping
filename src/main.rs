@@ -51,7 +51,8 @@ fn main() {
 
     match wsl_check() {
         Ok(WSLStatus::RunningUnderWSL) => error::wsl_error(),
-        Ok(_) | Err(_) => (),
+        Ok(_) => info!("Running under Linux"),
+        Err(_) => info!("Unknown if running under WSL"),
     }
 
     match args.command {
@@ -84,10 +85,8 @@ fn ensure_root() {
     };
 }
 
-fn wsl_check() -> Result<WSLStatus, UnknownWSLStatus>{
-    let output = std::process::Command::new("uname")
-                .arg("-r")
-                .output()?;
+fn wsl_check() -> Result<WSLStatus, UnknownWSLStatus> {
+    let output = std::process::Command::new("uname").arg("-r").output()?;
 
     if output.status.success() {
         let mut wsl_status = String::from_utf8(output.stdout)?;
@@ -98,6 +97,6 @@ fn wsl_check() -> Result<WSLStatus, UnknownWSLStatus>{
             Ok(WSLStatus::RunningUnderLinux)
         }
     } else {
-        return Err(UnknownWSLStatus);
+        Err(UnknownWSLStatus)
     }
 }
